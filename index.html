@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elite 4 | Access Portal</title>
+    <style>
+        /* This section controls how the site looks */
+        body { 
+            background-color: #0b101b; 
+            color: #00d4ff; 
+            font-family: 'Courier New', monospace; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .box { 
+            border: 2px solid #00d4ff; 
+            padding: 50px; 
+            border-radius: 20px; 
+            text-align: center; 
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); 
+            background: rgba(0, 0, 0, 0.9);
+            max-width: 400px;
+        }
+
+        h1 { font-size: 2em; text-transform: uppercase; letter-spacing: 3px; }
+        
+        input { 
+            background: #111; 
+            border: 1px solid #00d4ff; 
+            color: #39FF14; 
+            padding: 12px; 
+            text-align: center; 
+            margin-top: 20px; 
+            width: 80%;
+            outline: none;
+            font-size: 1.1em;
+        }
+
+        button { 
+            background: #00d4ff; 
+            border: none; 
+            padding: 12px 25px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-top: 15px;
+            color: #000;
+            transition: 0.3s;
+        }
+
+        button:hover { background: #39FF14; }
+
+        #secret-content { display: none; } /* Hidden until password is correct */
+        
+        .verified-text { color: #39FF14; font-weight: bold; font-size: 1.5em; }
+    </style>
+</head>
+<body>
+
+    <div class="box" id="login-screen">
+        <h1>ACCESS REQUIRED</h1>
+        <p>Scan Card or Enter Code:</p>
+        <input type="password" id="user-pass" placeholder="••••••••">
+        <br>
+        <button onclick="unlock()">VALIDATE ACCESS</button>
+    </div>
+
+    <div class="box" id="secret-content">
+        <p class="verified-text">OWNER VERIFIED</p>
+        <hr style="border: 0.5px solid #444;">
+        <p>Welcome, Member of the <strong>Elite 4</strong>.</p>
+        <p>Current Group Status: <span style="color:#39FF14">Online</span></p>
+        <p style="font-size: 0.8em; color: #666; margin-top: 20px;">
+            Authorized Access Only // Global 3D Printing Collective
+        </p>
+    </div>
+
+    <script>
+        // THE PASSWORD IS: print4
+        function unlock() {
+            var passwordInput = document.getElementById("user-pass").value;
+            
+            if(passwordInput === "print4") {
+                document.getElementById("login-screen").style.display = "none";
+                document.getElementById("secret-content").style.display = "block";
+            } else {
+                alert("INVALID CREDENTIALS. ACCESS DENIED.");
+            }
+        }
+        
+        // Let them press "Enter" on keyboard to login too
+        document.getElementById("user-pass").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                unlock();
+            }
+        });
+    </script>
+
+</body>
+</html>
