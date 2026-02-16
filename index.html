@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Elite 4 | Access Portal</title>
     <style>
-        /* This section controls how the site looks */
+        /* Base Styles */
         body { 
             background-color: #0b101b; 
             color: #00d4ff; 
@@ -16,6 +16,7 @@
             height: 100vh; 
             margin: 0;
             overflow: hidden;
+            cursor: crosshair;
         }
 
         .box { 
@@ -24,22 +25,24 @@
             border-radius: 20px; 
             text-align: center; 
             box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); 
-            background: rgba(0, 0, 0, 0.9);
-            max-width: 400px;
+            background: rgba(0, 0, 0, 0.95);
+            max-width: 450px;
         }
 
-        h1 { font-size: 2em; text-transform: uppercase; letter-spacing: 3px; }
+        h1 { font-size: 1.8em; text-transform: uppercase; letter-spacing: 4px; margin-bottom: 20px; }
         
+        /* Input & Button Styles */
         input { 
-            background: #111; 
+            background: #000; 
             border: 1px solid #00d4ff; 
             color: #39FF14; 
             padding: 12px; 
             text-align: center; 
-            margin-top: 20px; 
+            margin-top: 10px; 
             width: 80%;
             outline: none;
-            font-size: 1.1em;
+            font-size: 1.2em;
+            box-shadow: inset 0 0 5px #00d4ff;
         }
 
         button { 
@@ -48,56 +51,96 @@
             padding: 12px 25px; 
             cursor: pointer; 
             font-weight: bold; 
-            margin-top: 15px;
+            margin-top: 20px;
             color: #000;
-            transition: 0.3s;
+            text-transform: uppercase;
+            transition: 0.2s;
         }
 
-        button:hover { background: #39FF14; }
+        button:hover { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
 
-        #secret-content { display: none; } /* Hidden until password is correct */
-        
-        .verified-text { color: #39FF14; font-weight: bold; font-size: 1.5em; }
+        /* Hidden States */
+        #wait-message, #secret-content { display: none; }
+
+        /* Neon Green Flashing Text */
+        .neon-green-prompt { 
+            color: #39FF14; 
+            font-weight: bold; 
+            text-shadow: 0 0 15px #39FF14;
+            font-size: 1.4em;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: pulse 1.5s infinite;
+            cursor: pointer;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .verified-text { color: #39FF14; font-size: 1.5em; margin-bottom: 10px; }
     </style>
 </head>
-<body>
+<body onclick="showSecret()">
 
     <div class="box" id="login-screen">
-        <h1>ACCESS REQUIRED</h1>
-        <p>Scan Card or Enter Code:</p>
-        <input type="password" id="user-pass" placeholder="••••••••">
+        <h1>LOGIN REQUIRED</h1>
+        <p>Enter Master Password:</p>
+        <input type="password" id="user-pass" placeholder="PASSWORD" autofocus>
         <br>
         <button onclick="unlock()">VALIDATE ACCESS</button>
     </div>
 
+    <div id="wait-message">
+        <p class="neon-green-prompt">CLICK ANYWHERE TO CONTINUE</p>
+    </div>
+
     <div class="box" id="secret-content">
-        <p class="verified-text">OWNER VERIFIED</p>
-        <hr style="border: 0.5px solid #444;">
-        <p>Welcome, Member of the <strong>Elite 4</strong>.</p>
-        <p>Current Group Status: <span style="color:#39FF14">Online</span></p>
-        <p style="font-size: 0.8em; color: #666; margin-top: 20px;">
-            Authorized Access Only // Global 3D Printing Collective
+        <h1 class="verified-text">ACCESS GRANTED</h1>
+        <hr style="border: 0.5px solid #333; margin: 20px 0;">
+        <p>Identity: <strong>Elite 4 Member</strong></p>
+        <p>Permissions: <span style="color:#39FF14">Owner-Level</span></p>
+        <p>Current Project: [REDACTED]</p>
+        <p style="font-size: 0.7em; color: #444; margin-top: 30px;">
+            SECURE SERVER // LOC: BOB-GOB // 2026
         </p>
     </div>
 
     <script>
-        // THE PASSWORD IS: print4
+        var canProceed = false;
+
         function unlock() {
             var passwordInput = document.getElementById("user-pass").value;
             
+            // Your password is 'print4'
             if(passwordInput === "print4") {
+                // Hide the login box immediately
                 document.getElementById("login-screen").style.display = "none";
-                document.getElementById("secret-content").style.display = "block";
+                
+                // Wait 2 seconds (2000ms) before showing the green text
+                setTimeout(function() {
+                    document.getElementById("wait-message").style.display = "block";
+                    canProceed = true;
+                }, 2000);
             } else {
-                alert("INVALID CREDENTIALS. ACCESS DENIED.");
+                alert("ACCESS DENIED: INVALID CREDENTIALS");
+                document.getElementById("user-pass").value = "";
             }
         }
-        
-        // Let them press "Enter" on keyboard to login too
-        document.getElementById("user-pass").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                unlock();
+
+        function showSecret() {
+            // Only works if the 2-second timer has finished
+            if (canProceed) {
+                document.getElementById("wait-message").style.display = "none";
+                document.getElementById("secret-content").style.display = "block";
             }
+        }
+
+        // Shortcut: Pressing 'Enter' triggers the button
+        document.getElementById("user-pass").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") { unlock(); }
         });
     </script>
 
