@@ -6,7 +6,7 @@
     <title>Elite 4 | Access Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        /* Global Styles */
+        /* Base Theme */
         body { 
             background-color: #0b101b; 
             color: #00d4ff; 
@@ -28,83 +28,73 @@
             box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); 
             background: rgba(0, 0, 0, 0.95);
             max-width: 450px;
+            width: 90%;
         }
 
-        h1 { font-size: 1.8em; text-transform: uppercase; letter-spacing: 4px; }
-        
+        /* Password Input Area */
+        .password-container {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+        }
+
         input { 
             background: #000; border: 1px solid #00d4ff; color: #39FF14; 
-            padding: 12px; text-align: center; width: 80%;
+            padding: 12px; text-align: center; width: 100%;
             outline: none; font-size: 1.2em; box-shadow: inset 0 0 5px #00d4ff;
+            box-sizing: border-box;
         }
 
-        button { 
+        .toggle-password {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: #00d4ff;
+            font-size: 1.2em;
+            user-select: none;
+        }
+
+        button.validate-btn { 
             background: #00d4ff; border: none; padding: 12px 25px; 
-            cursor: pointer; font-weight: bold; margin-top: 20px; color: #000;
-            text-transform: uppercase;
+            cursor: pointer; font-weight: bold; color: #000;
+            text-transform: uppercase; margin-top: 10px;
         }
 
-        button:hover { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
+        button.validate-btn:hover { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
 
-        /* Hidden Sections */
+        /* Logic Screens */
         #wait-message, #granted-screen, #final-dashboard, #lockout-msg { display: none; }
 
-        /* Neon Animation */
         .neon-green-prompt { 
             color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14;
-            font-size: 1.4em; text-transform: uppercase; letter-spacing: 2px;
-            animation: pulse 1.5s infinite; cursor: pointer;
+            font-size: 1.4em; text-transform: uppercase; animation: pulse 1.5s infinite; cursor: pointer;
         }
 
-        @keyframes pulse {
-            0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.4; transform: scale(1.05); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        /* Dashboard & Gallery Styles */
+        /* Dashboard Gallery */
         #final-dashboard {
-            width: 90%;
-            max-width: 1000px;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            padding: 50px 20px;
+            width: 90%; max-width: 1000px; display: none;
+            flex-direction: column; align-items: center; padding: 50px 20px;
         }
 
         .gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-            width: 100%;
-            margin-top: 30px;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px; width: 100%; margin-top: 30px;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid #222;
-            padding: 20px;
-            border-radius: 15px;
-            text-align: left;
-            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.03); border: 1px solid #222;
+            padding: 20px; border-radius: 15px; text-align: left; transition: 0.3s;
         }
 
-        .card:hover { 
-            border-color: #39FF14; 
-            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
-            transform: translateY(-5px); 
-        }
+        .card:hover { border-color: #39FF14; transform: translateY(-5px); }
+        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #00d4ff; margin-bottom: 15px; }
 
-        .card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 1px solid #00d4ff;
-            margin-bottom: 15px;
-        }
-
-        /* UI Elements */
+        /* Security UI */
         .logout-btn {
             position: fixed; top: 20px; right: 20px; background: transparent;
             border: 1px solid #ff4d4d; color: #ff4d4d; padding: 8px 15px;
@@ -112,7 +102,6 @@
         }
 
         #lockout-msg { color: #ff4d4d; margin-top: 15px; font-weight: bold; }
-
         #qrcode { background: white; padding: 10px; border-radius: 10px; margin-top: 20px; display: inline-block; }
     </style>
 </head>
@@ -121,9 +110,11 @@
     <div class="box" id="login-screen">
         <h1>SYSTEM LOCKED</h1>
         <p>Enter Master Key:</p>
-        <input type="text" id="user-pass" placeholder="PASSWORD" autofocus>
-        <br>
-        <button id="login-btn" onclick="unlock()">VALIDATE</button>
+        <div class="password-container">
+            <input type="password" id="user-pass" placeholder="PASSWORD" autofocus>
+            <span class="toggle-password" id="eye-icon" onclick="togglePass()">👁️</span>
+        </div>
+        <button class="validate-btn" id="login-btn" onclick="unlock()">VALIDATE</button>
         <div id="lockout-msg">SECURITY LOCKOUT: <span id="timer">30</span>s</div>
     </div>
 
@@ -139,20 +130,18 @@
 
     <div id="final-dashboard">
         <button class="logout-btn" onclick="logout()">LOG OUT</button>
-        
         <h2 style="color: #39FF14; border-bottom: 1px solid #333; width: 100%; padding-bottom: 10px;">> MEMBER_VAULT_2026</h2>
         
         <div class="gallery">
             <div class="card">
                 <img src="https://via.placeholder.com/400x250/0b101b/39FF14?text=Astronaut+Project" alt="P1">
                 <h3>PROJECT 1</h3>
-                <p>Project 1: astronaut project: Monday.</p>
+                <p>Astronaut project: Monday completion.</p>
             </div>
-
             <div class="card">
                 <img src="https://via.placeholder.com/400x250/0b101b/00d4ff?text=Dragon+and+Octopus" alt="P2">
                 <h3>PROJECT 2</h3>
-                <p>Project 2: create Black dragon and Red octopus</p>
+                <p>Created: Black dragon and Red octopus.</p>
             </div>
         </div>
 
@@ -167,11 +156,23 @@
         var attempts = 0;
         var isLocked = false;
 
+        // Toggle Password Visibility
+        function togglePass() {
+            var passField = document.getElementById("user-pass");
+            var eyeIcon = document.getElementById("eye-icon");
+            if (passField.type === "password") {
+                passField.type = "text";
+                eyeIcon.innerText = "🔒"; // Changes icon when visible
+            } else {
+                passField.type = "password";
+                eyeIcon.innerText = "👁️";
+            }
+        }
+
+        // Login Logic
         function unlock() {
             if (isLocked) return;
-
             var rawInput = document.getElementById("user-pass").value;
-            // Cleans the input to make sure caps or spaces don't break it
             var cleanInput = rawInput.trim().toLowerCase();
             
             if(cleanInput === "printing4") {
@@ -180,7 +181,7 @@
                 setTimeout(function() {
                     document.getElementById("wait-message").style.display = "block";
                     stage = "wait";
-                }, 2000);
+                }, 1500);
             } else {
                 attempts++;
                 if (attempts >= 5) {
@@ -192,12 +193,12 @@
             }
         }
 
+        // 30 Second Security Lockout
         function startLockout() {
             isLocked = true;
             document.getElementById("login-btn").style.display = "none";
             document.getElementById("lockout-msg").style.display = "block";
-            var timeLeft = 30; // RESTORED TO 30 SECONDS
-            
+            var timeLeft = 30;
             var countdown = setInterval(function() {
                 timeLeft--;
                 document.getElementById("timer").textContent = timeLeft;
@@ -207,44 +208,37 @@
                     attempts = 0;
                     document.getElementById("login-btn").style.display = "inline-block";
                     document.getElementById("lockout-msg").style.display = "none";
-                    document.getElementById("user-pass").value = "";
                 }
             }, 1000);
         }
 
+        // Screen Transitions
         function handleGlobalClick() {
             if (stage === "wait") {
                 document.getElementById("wait-message").style.display = "none";
                 document.getElementById("granted-screen").style.display = "block";
                 stage = "granted";
-
                 setTimeout(function() {
                     document.getElementById("granted-screen").style.display = "none";
                     document.getElementById("final-dashboard").style.display = "flex";
                     document.body.style.overflowY = "auto"; 
-                    
                     document.getElementById("qrcode").innerHTML = ""; 
                     new QRCode(document.getElementById("qrcode"), {
                         text: window.location.href,
                         width: 128, height: 128
                     });
-
                     stage = "final";
-                }, 3000);
+                }, 2500);
             }
         }
 
-        function logout() {
-            // Full system reset
-            location.reload();
-        }
+        function logout() { location.reload(); }
 
-        // Allow 'Enter' key
         document.getElementById("user-pass").addEventListener("keypress", function(e) {
             if (e.key === "Enter") { unlock(); }
         });
 
-        // Block source code inspection shortcuts
+        // Basic Code Protection
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i')) {
                 e.preventDefault();
