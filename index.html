@@ -6,200 +6,165 @@
     <title>Elite 4 | Access Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
-        body { 
-            background-color: #0b101b; 
-            color: #00d4ff; 
-            font-family: 'Courier New', monospace; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            margin: 0;
-            overflow-x: hidden; 
-            cursor: crosshair;
-        }
+        body { background-color: #0b101b; color: #00d4ff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
+        .box { border: 2px solid #00d4ff; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); background: rgba(0, 0, 0, 0.95); max-width: 450px; width: 90%; }
+        
+        /* Login */
+        .password-container { position: relative; width: 100%; max-width: 300px; margin: 20px auto; }
+        input { background: #000; border: 1px solid #00d4ff; color: #39FF14; padding: 12px; text-align: center; width: 100%; outline: none; font-size: 1.2em; box-sizing: border-box; }
+        .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; }
+        
+        button { background: #00d4ff; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; color: #000; text-transform: uppercase; margin-top: 10px; transition: 0.2s; }
+        button:hover { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
 
-        .box { 
-            border: 2px solid #00d4ff; 
-            padding: 40px; 
-            border-radius: 20px; 
-            text-align: center; 
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); 
-            background: rgba(0, 0, 0, 0.95);
-            max-width: 450px;
-            width: 90%;
-        }
-
-        .password-container {
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-            margin: 20px auto;
-        }
-
-        input { 
-            background: #000; border: 1px solid #00d4ff; color: #39FF14; 
-            padding: 12px; text-align: center; width: 100%;
-            outline: none; font-size: 1.2em; box-shadow: inset 0 0 5px #00d4ff;
-            box-sizing: border-box;
-        }
-
-        .toggle-password {
-            position: absolute;
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            color: #00d4ff;
-            font-size: 1.2em;
-            user-select: none;
-        }
-
-        button.validate-btn { 
-            background: #00d4ff; border: none; padding: 12px 25px; 
-            cursor: pointer; font-weight: bold; color: #000;
-            text-transform: uppercase; margin-top: 10px;
-        }
-
-        button.validate-btn:hover { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
-
-        #wait-message, #granted-screen, #final-dashboard, #lockout-msg { display: none; }
-
-        .neon-green-prompt { 
-            color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14;
-            font-size: 1.4em; text-transform: uppercase; animation: pulse 1.5s infinite; cursor: pointer;
-        }
-
+        /* Screens */
+        #wait-message, #granted-screen, #final-dashboard, #lockout-msg, #stats-page { display: none; }
+        .neon-green-prompt { color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14; font-size: 1.4em; animation: pulse 1.5s infinite; cursor: pointer; text-align: center;}
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        #final-dashboard {
-            width: 90%; max-width: 1000px; display: none;
-            flex-direction: column; align-items: center; padding: 50px 20px;
-        }
+        /* Gallery */
+        #final-dashboard, #stats-page { width: 90%; max-width: 1000px; flex-direction: column; align-items: center; padding: 50px 20px; }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 100%; margin-top: 30px; }
+        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid #222; padding: 20px; border-radius: 15px; }
+        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #00d4ff; }
 
-        .gallery {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px; width: 100%; margin-top: 30px;
-        }
+        /* Graph */
+        .graph-container { display: flex; height: 500px; width: 100%; margin-top: 40px; border-left: 2px solid #00d4ff; border-bottom: 2px solid #00d4ff; position: relative; padding-top: 20px; background: rgba(0, 212, 255, 0.02); }
+        .y-axis { position: absolute; left: -55px; height: 100%; display: flex; flex-direction: column-reverse; justify-content: space-between; font-size: 0.8em; color: #888; width: 50px; text-align: right; pointer-events: none; }
+        .bars-area { display: flex; justify-content: space-around; align-items: flex-end; width: 100%; height: 100%; padding: 0 10px; }
+        .bar-wrapper { display: flex; flex-direction: column; align-items: center; width: 7%; height: 100%; justify-content: flex-end; cursor: pointer; }
+        .bar { width: 100%; background: linear-gradient(to top, #00d4ff, #39FF14); border-radius: 3px 3px 0 0; transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); height: 0%; pointer-events: none; position: relative; }
+        .bar::after { content: attr(data-value); position: absolute; top: -25px; width: 100%; text-align: center; font-size: 0.8em; color: #39FF14; font-weight: bold; }
+        .month-label { margin-top: 15px; font-size: 0.75em; text-transform: uppercase; color: #00d4ff; font-weight: bold; pointer-events: none; }
 
-        .card {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid #222;
-            padding: 20px; border-radius: 15px; text-align: left; transition: 0.3s;
-        }
-
-        .card:hover { border-color: #39FF14; transform: translateY(-5px); }
-        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #00d4ff; margin-bottom: 15px; }
-
-        .logout-btn {
-            position: fixed; top: 20px; right: 20px; background: transparent;
-            border: 1px solid #ff4d4d; color: #ff4d4d; padding: 8px 15px;
-            font-size: 0.8em; border-radius: 5px; cursor: pointer; z-index: 100;
-        }
-
-        #lockout-msg { color: #ff4d4d; margin-top: 15px; font-weight: bold; }
-        #qrcode { background: white; padding: 10px; border-radius: 10px; margin-top: 20px; display: inline-block; }
+        .logout-btn { position: fixed; top: 20px; right: 20px; background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body oncontextmenu="return false;" onclick="handleGlobalClick()">
 
     <div class="box" id="login-screen">
         <h1>SYSTEM LOCKED</h1>
-        <p>Enter Master Key:</p>
         <div class="password-container">
             <input type="password" id="user-pass" placeholder="PASSWORD" autofocus>
             <span class="toggle-password" id="eye-icon" onclick="togglePass()">👁️</span>
         </div>
-        <button class="validate-btn" id="login-btn" onclick="unlock()">VALIDATE</button>
+        <button onclick="unlock()">VALIDATE</button>
         <div id="lockout-msg">SECURITY LOCKOUT: <span id="timer">30</span>s</div>
     </div>
 
-    <div id="wait-message">
-        <p class="neon-green-prompt">CLICK ANYWHERE TO CONTINUE</p>
-    </div>
-
-    <div class="box" id="granted-screen">
-        <h1 style="color: #39FF14;">ACCESS GRANTED</h1>
-        <p>Synchronizing Elite 4 Vault...</p>
-    </div>
+    <div id="wait-message"><p class="neon-green-prompt">CLICK ANYWHERE TO CONTINUE</p></div>
+    <div class="box" id="granted-screen"><h1>ACCESS GRANTED</h1></div>
 
     <div id="final-dashboard">
-        <button class="logout-btn" onclick="logout()">LOG OUT</button>
-        <h2 style="color: #39FF14; border-bottom: 1px solid #333; width: 100%; padding-bottom: 10px;">> MEMBER_VAULT_2026</h2>
-        
+        <button class="logout-btn" onclick="location.reload()">LOG OUT</button>
+        <h2 style="color: #39FF14;">> MEMBER_VAULT_2026</h2>
         <div class="gallery">
             <div class="card">
-                <img src="https://via.placeholder.com/400x250/0b101b/39FF14?text=Astronaut+Project" alt="P1">
+                <img src="https://via.placeholder.com/400x250/0b101b/39FF14?text=Astronaut" alt="P1">
                 <h3>PROJECT 1</h3>
                 <p>Astronaut project: Monday completion.</p>
             </div>
             <div class="card">
-                <img src="https://via.placeholder.com/400x250/0b101b/00d4ff?text=Dragon+and+Octopus" alt="P2">
+                <img src="https://via.placeholder.com/400x250/0b101b/00d4ff?text=Dragon+Octopus" alt="P2">
                 <h3>PROJECT 2</h3>
                 <p>In Progress: Create Black Dragon and Red Octopus</p>
             </div>
         </div>
+        <button onclick="showStats()" style="margin-top: 40px;">NEXT PAGE: BUDGET TRACKER</button>
+        <div id="qrcode" style="margin-top: 20px; background: white; padding: 5px; border-radius: 5px;"></div>
+    </div>
 
-        <div style="margin-top: 50px; text-align: center; border-top: 1px solid #222; width: 100%; padding-top: 20px;">
-            <p style="color: #888;">SCAN TO SHARE ACCESS:</p>
-            <div id="qrcode"></div>
+    <div id="stats-page">
+        <button class="logout-btn" onclick="location.reload()">LOG OUT</button>
+        <h2 style="color: #39FF14;">> MONTHLY_EXPENSES</h2>
+        <p style="font-size: 0.8em; color: #888;">Click a column to set value (Saved Automatically)</p>
+        
+        <div class="graph-container">
+            <div class="y-axis" id="y-axis"></div>
+            <div class="bars-area" id="bars-area">
+                <script>
+                    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                    months.forEach(m => {
+                        document.write(`
+                            <div class="bar-wrapper" onclick="updateGraph(this, '${m.toLowerCase()}', event)">
+                                <div class="bar" id="bar-${m.toLowerCase()}" data-value="0"></div>
+                                <div class="month-label">${m}</div>
+                            </div>
+                        `);
+                    });
+                </script>
+            </div>
         </div>
+        <button onclick="showProjects()" style="margin-top: 40px;">BACK TO PROJECTS</button>
     </div>
 
     <script>
         var stage = "login"; 
         var attempts = 0;
-        var isLocked = false;
+
+        // Populate Y-Axis (0-100 by 2s)
+        const yAxis = document.getElementById('y-axis');
+        for(let i=0; i<=100; i+=2) {
+            let label = document.createElement('div');
+            label.innerText = i;
+            yAxis.appendChild(label);
+        }
+
+        // LOAD SAVED DATA
+        window.onload = function() {
+            months.forEach(m => {
+                const savedValue = localStorage.getItem('budget-' + m.toLowerCase());
+                if(savedValue) {
+                    const bar = document.getElementById('bar-' + m.toLowerCase());
+                    bar.style.height = savedValue + '%';
+                    bar.setAttribute('data-value', savedValue);
+                }
+            });
+        };
+
+        // INTERACTIVE GRAPH LOGIC
+        function updateGraph(wrapper, month, event) {
+            const rect = wrapper.getBoundingClientRect();
+            const clickY = event.clientY - rect.top;
+            const heightPx = rect.height - clickY - 30; 
+            let percentage = Math.round((heightPx / (rect.height - 30)) * 100);
+            
+            // Snap to 2s and Clamp
+            percentage = Math.max(0, Math.min(100, Math.round(percentage / 2) * 2));
+            
+            const bar = wrapper.querySelector('.bar');
+            bar.style.height = percentage + '%';
+            bar.setAttribute('data-value', percentage);
+            
+            // SAVE TO MEMORY
+            localStorage.setItem('budget-' + month, percentage);
+        }
 
         function togglePass() {
-            var passField = document.getElementById("user-pass");
-            var eyeIcon = document.getElementById("eye-icon");
-            if (passField.type === "password") {
-                passField.type = "text";
-                eyeIcon.innerText = "🔒";
-            } else {
-                passField.type = "password";
-                eyeIcon.innerText = "👁️";
-            }
+            var p = document.getElementById("user-pass");
+            var e = document.getElementById("eye-icon");
+            p.type = p.type === "password" ? "text" : "password";
+            e.innerText = p.type === "password" ? "👁️" : "🔒";
         }
 
         function unlock() {
-            if (isLocked) return;
-            var rawInput = document.getElementById("user-pass").value;
-            var cleanInput = rawInput.trim().toLowerCase();
-            
-            if(cleanInput === "printing4") {
-                attempts = 0;
+            var input = document.getElementById("user-pass").value.trim().toLowerCase();
+            if(input === "printing4") {
                 document.getElementById("login-screen").style.display = "none";
-                setTimeout(function() {
-                    document.getElementById("wait-message").style.display = "block";
-                    stage = "wait";
-                }, 1500);
+                setTimeout(() => { document.getElementById("wait-message").style.display = "block"; stage = "wait"; }, 1000);
             } else {
                 attempts++;
-                if (attempts >= 5) {
-                    startLockout();
-                } else {
-                    alert("INVALID KEY. Tries: " + attempts + "/5");
-                    document.getElementById("user-pass").value = "";
-                }
+                if (attempts >= 5) startLockout();
+                else { alert("ACCESS DENIED"); document.getElementById("user-pass").value = ""; }
             }
         }
 
         function startLockout() {
-            isLocked = true;
-            document.getElementById("login-btn").style.display = "none";
             document.getElementById("lockout-msg").style.display = "block";
-            var timeLeft = 30;
-            var countdown = setInterval(function() {
-                timeLeft--;
-                document.getElementById("timer").textContent = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(countdown);
-                    isLocked = false;
-                    attempts = 0;
-                    document.getElementById("login-btn").style.display = "inline-block";
-                    document.getElementById("lockout-msg").style.display = "none";
-                }
+            let time = 30;
+            let timer = setInterval(() => {
+                time--; document.getElementById("timer").innerText = time;
+                if(time <= 0) { clearInterval(timer); document.getElementById("lockout-msg").style.display = "none"; attempts = 0; }
             }, 1000);
         }
 
@@ -208,31 +173,25 @@
                 document.getElementById("wait-message").style.display = "none";
                 document.getElementById("granted-screen").style.display = "block";
                 stage = "granted";
-                setTimeout(function() {
+                setTimeout(() => {
                     document.getElementById("granted-screen").style.display = "none";
                     document.getElementById("final-dashboard").style.display = "flex";
-                    document.body.style.overflowY = "auto"; 
-                    document.getElementById("qrcode").innerHTML = ""; 
-                    new QRCode(document.getElementById("qrcode"), {
-                        text: window.location.href,
-                        width: 128, height: 128
-                    });
-                    stage = "final";
-                }, 2500);
+                    new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 80, height: 80 });
+                }, 1500);
             }
         }
 
-        function logout() { location.reload(); }
+        function showStats() {
+            document.getElementById("final-dashboard").style.display = "none";
+            document.getElementById("stats-page").style.display = "flex";
+        }
 
-        document.getElementById("user-pass").addEventListener("keypress", function(e) {
-            if (e.key === "Enter") { unlock(); }
-        });
+        function showProjects() {
+            document.getElementById("stats-page").style.display = "none";
+            document.getElementById("final-dashboard").style.display = "flex";
+        }
 
-        document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i')) {
-                e.preventDefault();
-            }
-        });
+        document.getElementById("user-pass").addEventListener("keypress", (e) => { if(e.key === "Enter") unlock(); });
     </script>
 </body>
 </html>
