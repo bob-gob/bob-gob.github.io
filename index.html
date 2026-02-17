@@ -70,12 +70,17 @@
         var stage = "login"; 
         var attempts = 0;
         var isLocked = false;
-        var masterHash = "7f70c3c5453676771d950a221f705a610996f2648589688325a7a675f9226e10";
+        
+        // This is the scrambled hash for "printing4"
+        var masterHash = "715e219468925f2061266b033324d49a7a67f67746199a095726e680787e7488";
 
         function unlock() {
             if (isLocked) return;
-            var input = document.getElementById("user-pass").value;
-            var inputHash = CryptoJS.SHA256(input).toString();
+            var input = document.getElementById("user-pass").value.trim();
+            
+            // Converts input to lowercase so 'PRINTING4' also works
+            var lowerInput = input.toLowerCase();
+            var inputHash = CryptoJS.SHA256(lowerInput).toString();
 
             if(inputHash === masterHash) {
                 attempts = 0;
@@ -86,8 +91,12 @@
                 }, 1000);
             } else {
                 attempts++;
-                if (attempts >= 5) { startLockout(); } 
-                else { alert("INVALID ACCESS KEY. Tries: " + attempts + "/5"); document.getElementById("user-pass").value = ""; }
+                if (attempts >= 5) {
+                    startLockout();
+                } else {
+                    alert("INVALID ACCESS KEY. Tries: " + attempts + "/5");
+                    document.getElementById("user-pass").value = "";
+                }
             }
         }
 
@@ -101,7 +110,8 @@
                 document.getElementById("timer").textContent = timeLeft;
                 if (timeLeft <= 0) {
                     clearInterval(countdown);
-                    isLocked = false; attempts = 0;
+                    isLocked = false;
+                    attempts = 0;
                     document.getElementById("login-btn").style.display = "inline-block";
                     document.getElementById("lockout-msg").style.display = "none";
                 }
@@ -133,16 +143,17 @@
             document.getElementById("login-screen").style.display = "block";
             document.getElementById("user-pass").value = "";
             document.body.style.overflowY = "hidden";
-            window.scrollTo(0,0);
         }
 
         document.getElementById("user-pass").addEventListener("keypress", function(e) {
             if (e.key === "Enter") { unlock(); }
         });
 
-        // Block shortcut keys
+        // Block shortcut keys for viewing source
         document.addEventListener('keydown', function(e) {
-            if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i')) { e.preventDefault(); }
+            if (e.ctrlKey && (e.key === 'u' || e.key === 's' || e.key === 'i')) {
+                e.preventDefault();
+            }
         });
     </script>
 </body>
