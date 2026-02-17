@@ -6,6 +6,7 @@
     <title>Elite 4 | Access Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
+        /* Base Styling */
         body { 
             background-color: #0b101b; 
             color: #00d4ff; 
@@ -29,6 +30,8 @@
             max-width: 450px;
         }
 
+        h1 { font-size: 1.8em; text-transform: uppercase; letter-spacing: 4px; }
+        
         input { 
             background: #000; border: 1px solid #00d4ff; color: #39FF14; 
             padding: 12px; text-align: center; width: 80%;
@@ -44,16 +47,22 @@
         button:hover { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
 
         /* Hidden Sections */
-        #wait-message, #granted-screen, #final-dashboard { display: none; }
+        #wait-message, #granted-screen, #final-dashboard, #lockout-msg { display: none; }
 
+        /* Neon Green Pulse */
         .neon-green-prompt { 
             color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14;
-            font-size: 1.4em; text-transform: uppercase; animation: pulse 1.5s infinite; cursor: pointer;
+            font-size: 1.4em; text-transform: uppercase; letter-spacing: 2px;
+            animation: pulse 1.5s infinite; cursor: pointer;
         }
 
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
 
-        /* Dashboard Styles */
+        /* Dashboard & Gallery Styles */
         #final-dashboard {
             width: 90%;
             max-width: 1000px;
@@ -66,34 +75,49 @@
         .gallery {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px; width: 100%; margin-top: 30px;
+            gap: 30px;
+            width: 100%;
+            margin-top: 30px;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid #222;
-            padding: 20px; border-radius: 15px; text-align: left; transition: 0.3s;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #222;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: left;
+            transition: 0.3s;
         }
 
-        .card:hover { border-color: #39FF14; transform: translateY(-5px); }
-        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #00d4ff; margin-bottom: 15px; }
+        .card:hover { 
+            border-color: #39FF14; 
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+            transform: translateY(-5px); 
+        }
 
-        /* Log Out Button Styling */
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #00d4ff;
+            margin-bottom: 15px;
+        }
+
+        .card h3 { margin: 0; color: #39FF14; font-size: 1.2em; }
+        .card p { color: #888; font-size: 0.9em; line-height: 1.4; }
+
+        /* Logout and Lockout UI */
         .logout-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: transparent;
-            border: 1px solid #ff4d4d;
-            color: #ff4d4d;
-            padding: 8px 15px;
-            font-size: 0.8em;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 100;
+            position: fixed; top: 20px; right: 20px; background: transparent;
+            border: 1px solid #ff4d4d; color: #ff4d4d; padding: 8px 15px;
+            font-size: 0.8em; border-radius: 5px; cursor: pointer; z-index: 100;
         }
-
         .logout-btn:hover { background: #ff4d4d; color: #fff; }
 
+        #lockout-msg { color: #ff4d4d; margin-top: 15px; font-weight: bold; }
+
+        /* QR Code Styling */
         #qrcode { background: white; padding: 10px; border-radius: 10px; margin-top: 20px; display: inline-block; }
     </style>
 </head>
@@ -104,7 +128,8 @@
         <p>Enter Credentials:</p>
         <input type="password" id="user-pass" placeholder="PASSWORD" autofocus>
         <br>
-        <button onclick="unlock()">VALIDATE</button>
+        <button id="login-btn" onclick="unlock()">VALIDATE</button>
+        <div id="lockout-msg">SECURITY LOCKOUT: <span id="timer">30</span>s</div>
     </div>
 
     <div id="wait-message">
@@ -145,19 +170,50 @@
 
     <script>
         var stage = "login"; 
+        var attempts = 0;
+        var isLocked = false;
 
         function unlock() {
+            if (isLocked) return;
+
             var passwordInput = document.getElementById("user-pass").value;
+            // Password: 3dprint
             if(passwordInput === "3dprint") {
+                attempts = 0;
                 document.getElementById("login-screen").style.display = "none";
                 setTimeout(function() {
                     document.getElementById("wait-message").style.display = "block";
                     stage = "wait";
                 }, 2000);
             } else {
-                alert("ACCESS DENIED");
-                document.getElementById("user-pass").value = "";
+                attempts++;
+                if (attempts >= 5) {
+                    startLockout();
+                } else {
+                    alert("ACCESS DENIED. Attempts: " + attempts + "/5");
+                    document.getElementById("user-pass").value = "";
+                }
             }
+        }
+
+        function startLockout() {
+            isLocked = true;
+            document.getElementById("login-btn").style.display = "none";
+            document.getElementById("lockout-msg").style.display = "block";
+            var timeLeft = 30;
+            
+            var countdown = setInterval(function() {
+                timeLeft--;
+                document.getElementById("timer").textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    isLocked = false;
+                    attempts = 0;
+                    document.getElementById("login-btn").style.display = "inline-block";
+                    document.getElementById("lockout-msg").style.display = "none";
+                    document.getElementById("user-pass").value = "";
+                }
+            }, 1000);
         }
 
         function handleGlobalClick() {
@@ -171,6 +227,7 @@
                     document.getElementById("final-dashboard").style.display = "flex";
                     document.body.style.overflowY = "auto"; 
                     
+                    // Generate/Refresh QR Code
                     document.getElementById("qrcode").innerHTML = ""; 
                     new QRCode(document.getElementById("qrcode"), {
                         text: "https://bob-gob.github.io/3Dprinted.github.io/",
@@ -183,14 +240,15 @@
         }
 
         function logout() {
-            // Reset everything back to the start
             stage = "login";
             document.getElementById("final-dashboard").style.display = "none";
             document.getElementById("login-screen").style.display = "block";
             document.getElementById("user-pass").value = "";
             document.body.style.overflowY = "hidden";
+            window.scrollTo(0,0);
         }
 
+        // Enter key support
         document.getElementById("user-pass").addEventListener("keypress", function(e) {
             if (e.key === "Enter") { unlock(); }
         });
