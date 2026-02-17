@@ -6,30 +6,108 @@
     <title>Elite 4 | Access Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
+        /* Base Styling */
         body { 
-            background-color: #0b101b; color: #00d4ff; font-family: 'Courier New', monospace; 
-            display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0;
-            overflow-x: hidden; cursor: crosshair;
+            background-color: #0b101b; 
+            color: #00d4ff; 
+            font-family: 'Courier New', monospace; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+            margin: 0;
+            overflow-x: hidden; 
+            cursor: crosshair;
         }
-        .box { 
-            border: 2px solid #00d4ff; padding: 40px; border-radius: 20px; text-align: center; 
-            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); background: rgba(0, 0, 0, 0.95); max-width: 450px;
-        }
-        input { background: #000; border: 1px solid #00d4ff; color: #39FF14; padding: 12px; text-align: center; width: 80%; outline: none; font-size: 1.2em; box-shadow: inset 0 0 5px #00d4ff; }
-        button { background: #00d4ff; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; margin-top: 20px; color: #000; text-transform: uppercase; }
-        button:hover { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
-        #wait-message, #granted-screen, #final-dashboard { display: none; }
-        .neon-green-prompt { color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14; font-size: 1.4em; animation: pulse 1.5s infinite; cursor: pointer; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
-        
-        #final-dashboard { width: 90%; max-width: 1000px; display: none; flex-direction: column; align-items: center; padding: 50px 20px; }
-        .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 100%; margin-top: 30px; }
-        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid #222; padding: 20px; border-radius: 15px; text-align: left; }
-        .card:hover { border-color: #39FF14; box-shadow: 0 0 20px rgba(57, 255, 20, 0.2); transform: translateY(-5px); }
-        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #00d4ff; margin-bottom: 15px; }
-        .card h3 { margin: 0; color: #39FF14; font-size: 1.2em; }
-        .card p { color: #888; font-size: 0.9em; }
 
+        .box { 
+            border: 2px solid #00d4ff; 
+            padding: 40px; 
+            border-radius: 20px; 
+            text-align: center; 
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); 
+            background: rgba(0, 0, 0, 0.95);
+            max-width: 450px;
+        }
+
+        h1 { font-size: 1.8em; text-transform: uppercase; letter-spacing: 4px; }
+        
+        input { 
+            background: #000; border: 1px solid #00d4ff; color: #39FF14; 
+            padding: 12px; text-align: center; width: 80%;
+            outline: none; font-size: 1.2em; box-shadow: inset 0 0 5px #00d4ff;
+        }
+
+        button { 
+            background: #00d4ff; border: none; padding: 12px 25px; 
+            cursor: pointer; font-weight: bold; margin-top: 20px; color: #000;
+            text-transform: uppercase;
+        }
+
+        button:hover { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
+
+        /* Hidden Sections */
+        #wait-message, #granted-screen, #final-dashboard { display: none; }
+
+        /* Neon Green Pulse */
+        .neon-green-prompt { 
+            color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14;
+            font-size: 1.4em; text-transform: uppercase; letter-spacing: 2px;
+            animation: pulse 1.5s infinite; cursor: pointer;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(1.05); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        /* Dashboard & Gallery Styles */
+        #final-dashboard {
+            width: 90%;
+            max-width: 1000px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 50px 20px;
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            width: 100%;
+            margin-top: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid #222;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: left;
+            transition: 0.3s;
+        }
+
+        .card:hover { 
+            border-color: #39FF14; 
+            box-shadow: 0 0 20px rgba(57, 255, 20, 0.2);
+            transform: translateY(-5px); 
+        }
+
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 1px solid #00d4ff;
+            margin-bottom: 15px;
+        }
+
+        .card h3 { margin: 0; color: #39FF14; font-size: 1.2em; }
+        .card p { color: #888; font-size: 0.9em; line-height: 1.4; }
+
+        /* QR Code Styling */
         #qrcode { background: white; padding: 10px; border-radius: 10px; margin-top: 20px; display: inline-block; }
     </style>
 </head>
@@ -43,7 +121,9 @@
         <button onclick="unlock()">VALIDATE</button>
     </div>
 
-    <div id="wait-message"><p class="neon-green-prompt">CLICK ANYWHERE TO CONTINUE</p></div>
+    <div id="wait-message">
+        <p class="neon-green-prompt">CLICK ANYWHERE TO CONTINUE</p>
+    </div>
 
     <div class="box" id="granted-screen">
         <h1 style="color: #39FF14;">ACCESS GRANTED</h1>
@@ -53,11 +133,18 @@
 
     <div id="final-dashboard">
         <h2 style="color: #39FF14; border-bottom: 1px solid #333; width: 100%; padding-bottom: 10px;">> MEMBER_VAULT_2026</h2>
+        
         <div class="gallery">
             <div class="card">
-                <img src="https://via.placeholder.com/400x250/0b101b/00d4ff?text=Upload+Photo" alt="P1">
+                <img src="https://via.placeholder.com/400x250/0b101b/39FF14?text=Astronaut+Project" alt="Project 1">
                 <h3>PROJECT 1</h3>
-                <p>project 1: astronaut project: Monday.</p>
+                <p>Project 1: astronaut project: Monday.</p>
+            </div>
+
+            <div class="card">
+                <img src="https://via.placeholder.com/400x250/0b101b/00d4ff?text=Dragon+and+Octopus" alt="Project 2">
+                <h3>PROJECT 2</h3>
+                <p>Project 2: create Black dragon and Red octopus</p>
             </div>
         </div>
 
@@ -70,11 +157,16 @@
 
     <script>
         var stage = "login"; 
+
         function unlock() {
-            // NEW PASSWORD SET TO: 3dprint
-            if(document.getElementById("user-pass").value === "3dprint") {
+            var passwordInput = document.getElementById("user-pass").value;
+            // Password set to: 3dprint
+            if(passwordInput === "3dprint") {
                 document.getElementById("login-screen").style.display = "none";
-                setTimeout(() => { document.getElementById("wait-message").style.display = "block"; stage = "wait"; }, 2000);
+                setTimeout(function() {
+                    document.getElementById("wait-message").style.display = "block";
+                    stage = "wait";
+                }, 2000);
             } else {
                 alert("ACCESS DENIED");
                 document.getElementById("user-pass").value = "";
@@ -86,19 +178,29 @@
                 document.getElementById("wait-message").style.display = "none";
                 document.getElementById("granted-screen").style.display = "block";
                 stage = "granted";
-                setTimeout(() => {
+
+                setTimeout(function() {
                     document.getElementById("granted-screen").style.display = "none";
                     document.getElementById("final-dashboard").style.display = "flex";
-                    document.body.style.overflowY = "auto";
+                    document.body.style.overflowY = "auto"; 
+                    
+                    // Generate QR Code automatically
                     new QRCode(document.getElementById("qrcode"), {
                         text: "https://bob-gob.github.io/3Dprinted.github.io/",
-                        width: 128, height: 128
+                        width: 128,
+                        height: 128
                     });
+
+                    stage = "final";
                 }, 3000);
             }
         }
 
-        document.getElementById("user-pass").addEventListener("keypress", (e) => { if (e.key === "Enter") unlock(); });
+        // Enter key support
+        document.getElementById("user-pass").addEventListener("keypress", function(e) {
+            if (e.key === "Enter") { unlock(); }
+        });
     </script>
+
 </body>
 </html>
