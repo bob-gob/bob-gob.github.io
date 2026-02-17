@@ -18,22 +18,34 @@
         button:hover { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
 
         /* Screens */
-        #wait-message, #granted-screen, #final-dashboard, #lockout-msg, #stats-page { display: none; }
+        #wait-message, #loading-screen, #granted-screen, #final-dashboard, #lockout-msg, #stats-page { display: none; }
         .neon-green-prompt { color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14; font-size: 1.4em; animation: pulse 1.5s infinite; cursor: pointer; text-align: center;}
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        /* Gallery */
+        /* Loading Spinner */
+        .spinner {
+            border: 5px solid rgba(0, 212, 255, 0.1);
+            border-left-color: #39FF14;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Dashboard Gallery */
         #final-dashboard, #stats-page { width: 90%; max-width: 1000px; flex-direction: column; align-items: center; padding: 50px 20px; }
         .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 100%; margin-top: 30px; }
         .card { background: rgba(255, 255, 255, 0.03); border: 1px solid #222; padding: 20px; border-radius: 15px; }
         .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #00d4ff; }
 
-        /* Graph */
+        /* Interactive Graph */
         .graph-container { display: flex; height: 500px; width: 100%; margin-top: 40px; border-left: 2px solid #00d4ff; border-bottom: 2px solid #00d4ff; position: relative; padding-top: 20px; background: rgba(0, 212, 255, 0.02); }
         .y-axis { position: absolute; left: -55px; height: 100%; display: flex; flex-direction: column-reverse; justify-content: space-between; font-size: 0.8em; color: #888; width: 50px; text-align: right; pointer-events: none; }
         .bars-area { display: flex; justify-content: space-around; align-items: flex-end; width: 100%; height: 100%; padding: 0 10px; }
         .bar-wrapper { display: flex; flex-direction: column; align-items: center; width: 7%; height: 100%; justify-content: flex-end; cursor: pointer; }
-        .bar { width: 100%; background: linear-gradient(to top, #00d4ff, #39FF14); border-radius: 3px 3px 0 0; transition: height 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); height: 0%; pointer-events: none; position: relative; }
+        .bar { width: 100%; background: linear-gradient(to top, #00d4ff, #39FF14); border-radius: 3px 3px 0 0; transition: height 0.4s ease-out; height: 0%; pointer-events: none; position: relative; }
         .bar::after { content: attr(data-value); position: absolute; top: -25px; width: 100%; text-align: center; font-size: 0.8em; color: #39FF14; font-weight: bold; }
         .month-label { margin-top: 15px; font-size: 0.75em; text-transform: uppercase; color: #00d4ff; font-weight: bold; pointer-events: none; }
 
@@ -52,8 +64,14 @@
         <div id="lockout-msg">SECURITY LOCKOUT: <span id="timer">30</span>s</div>
     </div>
 
+    <div class="box" id="loading-screen">
+        <div class="spinner"></div>
+        <h2 style="letter-spacing: 5px; animation: pulse 1s infinite;">LOADING...</h2>
+        <p style="font-size: 0.7em; color: #888;">Decrypting Secure Files...</p>
+    </div>
+
     <div id="wait-message"><p class="neon-green-prompt">CLICK ANYWHERE TO CONTINUE</p></div>
-    <div class="box" id="granted-screen"><h1>ACCESS GRANTED</h1></div>
+    <div class="box" id="granted-screen"><h1 style="color: #39FF14;">ACCESS GRANTED</h1></div>
 
     <div id="final-dashboard">
         <button class="logout-btn" onclick="location.reload()">LOG OUT</button>
@@ -77,8 +95,6 @@
     <div id="stats-page">
         <button class="logout-btn" onclick="location.reload()">LOG OUT</button>
         <h2 style="color: #39FF14;">> MONTHLY_EXPENSES</h2>
-        <p style="font-size: 0.8em; color: #888;">Click a column to set value (Saved Automatically)</p>
-        
         <div class="graph-container">
             <div class="y-axis" id="y-axis"></div>
             <div class="bars-area" id="bars-area">
@@ -110,7 +126,7 @@
             yAxis.appendChild(label);
         }
 
-        // LOAD SAVED DATA
+        // Load Saved Graph Data
         window.onload = function() {
             months.forEach(m => {
                 const savedValue = localStorage.getItem('budget-' + m.toLowerCase());
@@ -122,21 +138,15 @@
             });
         };
 
-        // INTERACTIVE GRAPH LOGIC
+        // Graph Interaction Logic
         function updateGraph(wrapper, month, event) {
             const rect = wrapper.getBoundingClientRect();
             const clickY = event.clientY - rect.top;
             const heightPx = rect.height - clickY - 30; 
-            let percentage = Math.round((heightPx / (rect.height - 30)) * 100);
-            
-            // Snap to 2s and Clamp
-            percentage = Math.max(0, Math.min(100, Math.round(percentage / 2) * 2));
-            
+            let percentage = Math.max(0, Math.min(100, Math.round((heightPx / (rect.height - 30)) * 50) * 2));
             const bar = wrapper.querySelector('.bar');
             bar.style.height = percentage + '%';
             bar.setAttribute('data-value', percentage);
-            
-            // SAVE TO MEMORY
             localStorage.setItem('budget-' + month, percentage);
         }
 
@@ -151,11 +161,17 @@
             var input = document.getElementById("user-pass").value.trim().toLowerCase();
             if(input === "printing4") {
                 document.getElementById("login-screen").style.display = "none";
-                setTimeout(() => { document.getElementById("wait-message").style.display = "block"; stage = "wait"; }, 1000);
+                // TRIGGER 5-SECOND LOADING
+                document.getElementById("loading-screen").style.display = "block";
+                setTimeout(() => {
+                    document.getElementById("loading-screen").style.display = "none";
+                    document.getElementById("wait-message").style.display = "block"; 
+                    stage = "wait";
+                }, 5000); 
             } else {
                 attempts++;
                 if (attempts >= 5) startLockout();
-                else { alert("ACCESS DENIED"); document.getElementById("user-pass").value = ""; }
+                else alert("ACCESS DENIED");
             }
         }
 
@@ -181,16 +197,8 @@
             }
         }
 
-        function showStats() {
-            document.getElementById("final-dashboard").style.display = "none";
-            document.getElementById("stats-page").style.display = "flex";
-        }
-
-        function showProjects() {
-            document.getElementById("stats-page").style.display = "none";
-            document.getElementById("final-dashboard").style.display = "flex";
-        }
-
+        function showStats() { document.getElementById("final-dashboard").style.display = "none"; document.getElementById("stats-page").style.display = "flex"; }
+        function showProjects() { document.getElementById("stats-page").style.display = "none"; document.getElementById("final-dashboard").style.display = "flex"; }
         document.getElementById("user-pass").addEventListener("keypress", (e) => { if(e.key === "Enter") unlock(); });
     </script>
 </body>
