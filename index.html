@@ -117,6 +117,7 @@
         let stage = "locked";
         let attempts = parseInt(localStorage.getItem('failed-attempts')) || 0;
         let isLockedOut = false;
+        let lockoutDone = localStorage.getItem('lockout-done') === 'true'; // Tracks if the 5-try lock has happened
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
         function init() {
@@ -141,17 +142,21 @@
         function unlock() {
             if(isLockedOut) return;
             const input = document.getElementById("user-pass").value.trim().toLowerCase();
+            
             if(input === "printing4") {
                 localStorage.setItem('failed-attempts', 0);
+                localStorage.setItem('lockout-done', 'false');
                 startLoading();
             } else {
                 attempts++;
                 localStorage.setItem('failed-attempts', attempts);
+                
                 if (attempts >= 10) {
                     localStorage.clear();
                     localStorage.setItem('system-wiped', 'true');
                     location.reload();
-                } else if (attempts >= 5) {
+                } else if (attempts === 5 && !lockoutDone) {
+                    localStorage.setItem('lockout-done', 'true');
                     startLockout();
                 } else {
                     alert("ACCESS DENIED: " + (10 - attempts) + " ATTEMPTS LEFT.");
@@ -163,6 +168,7 @@
             if (document.getElementById("override-pass").value === "18gb") {
                 localStorage.removeItem('system-wiped');
                 localStorage.setItem('failed-attempts', 0);
+                localStorage.setItem('lockout-done', 'false');
                 location.reload();
             } else { alert("INVALID OVERRIDE CODE"); }
         }
@@ -251,12 +257,18 @@
         }
 
         function startLockout() {
-            isLockedOut = true; document.getElementById("validate-btn").disabled = true;
+            isLockedOut = true; 
+            document.getElementById("validate-btn").disabled = true;
             document.getElementById("lockout-msg").style.display = "block";
             let time = 30;
             const timer = setInterval(() => {
                 time--; document.getElementById("timer").innerText = time;
-                if(time <= 0) { clearInterval(timer); isLockedOut = false; document.getElementById("validate-btn").disabled = false; document.getElementById("lockout-msg").style.display = "none"; }
+                if(time <= 0) { 
+                    clearInterval(timer); 
+                    isLockedOut = false; 
+                    document.getElementById("validate-btn").disabled = false; 
+                    document.getElementById("lockout-msg").style.display = "none"; 
+                }
             }, 1000);
         }
 
