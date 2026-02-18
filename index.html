@@ -9,38 +9,32 @@
         body { background-color: #0b101b; color: #00d4ff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
         .box { border: 2px solid #00d4ff; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); background: rgba(0, 0, 0, 0.95); max-width: 450px; width: 90%; }
         
-        /* Login */
+        /* Login Elements */
         .password-container { position: relative; width: 100%; max-width: 300px; margin: 20px auto; }
         input { background: #000; border: 1px solid #00d4ff; color: #39FF14; padding: 12px; text-align: center; width: 100%; outline: none; font-size: 1.2em; box-sizing: border-box; }
         .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; }
         
         button { background: #00d4ff; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; color: #000; text-transform: uppercase; margin-top: 10px; transition: 0.2s; }
-        button:hover { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
+        button:hover:not(:disabled) { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
+        button:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        /* Screens */
+        /* Screen Visibility */
         #wait-message, #loading-screen, #granted-screen, #final-dashboard, #lockout-msg, #stats-page { display: none; }
         .neon-green-prompt { color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14; font-size: 1.4em; animation: pulse 1.5s infinite; cursor: pointer; text-align: center;}
+        
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
         /* Loading Spinner */
-        .spinner {
-            border: 5px solid rgba(0, 212, 255, 0.1);
-            border-left-color: #39FF14;
-            border-radius: 50%;
-            width: 60px;
-            height: 60px;
-            animation: spin 1s linear infinite;
-            margin: 20px auto;
-        }
+        .spinner { border: 5px solid rgba(0, 212, 255, 0.1); border-left-color: #39FF14; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Dashboard Gallery */
+        /* Dashboard & Cards */
         #final-dashboard, #stats-page { width: 90%; max-width: 1000px; flex-direction: column; align-items: center; padding: 50px 20px; }
         .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 100%; margin-top: 30px; }
-        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid #222; padding: 20px; border-radius: 15px; }
+        .card { background: rgba(255, 255, 255, 0.03); border: 1px solid #222; padding: 20px; border-radius: 15px; text-align: left; }
         .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #00d4ff; }
 
-        /* Interactive Graph */
+        /* Graph Styling */
         .graph-container { display: flex; height: 500px; width: 100%; margin-top: 40px; border-left: 2px solid #00d4ff; border-bottom: 2px solid #00d4ff; position: relative; padding-top: 20px; background: rgba(0, 212, 255, 0.02); }
         .y-axis { position: absolute; left: -55px; height: 100%; display: flex; flex-direction: column-reverse; justify-content: space-between; font-size: 0.8em; color: #888; width: 50px; text-align: right; pointer-events: none; }
         .bars-area { display: flex; justify-content: space-around; align-items: flex-end; width: 100%; height: 100%; padding: 0 10px; }
@@ -60,14 +54,14 @@
             <input type="password" id="user-pass" placeholder="PASSWORD" autofocus>
             <span class="toggle-password" id="eye-icon" onclick="togglePass()">👁️</span>
         </div>
-        <button onclick="unlock()">VALIDATE</button>
-        <div id="lockout-msg">SECURITY LOCKOUT: <span id="timer">30</span>s</div>
+        <button id="validate-btn" onclick="unlock()">VALIDATE</button>
+        <div id="lockout-msg" style="color:#ff4d4d; margin-top:10px; display:none;">SECURITY LOCKOUT: <span id="timer">30</span>s</div>
     </div>
 
     <div class="box" id="loading-screen">
         <div class="spinner"></div>
         <h2 style="letter-spacing: 5px; animation: pulse 1s infinite;">LOADING...</h2>
-        <p style="font-size: 0.7em; color: #888;">Decrypting Secure Files...</p>
+        <p style="font-size: 0.7em; color: #888;">Synchronizing Vault Data...</p>
     </div>
 
     <div id="wait-message"><p class="neon-green-prompt">CLICK ANYWHERE TO CONTINUE</p></div>
@@ -78,7 +72,7 @@
         <h2 style="color: #39FF14;">> MEMBER_VAULT_2026</h2>
         <div class="gallery">
             <div class="card">
-                <img src="https://via.placeholder.com/400x250/0b101b/39FF14?text=Astronaut" alt="P1">
+                <img src="https://via.placeholder.com/400x250/0b101b/39FF14?text=Astronaut+Project" alt="P1">
                 <h3>PROJECT 1</h3>
                 <p>Astronaut project: Monday completion.</p>
             </div>
@@ -115,10 +109,11 @@
     </div>
 
     <script>
-        var stage = "login"; 
-        var attempts = 0;
+        let stage = "locked";
+        let attempts = 0;
+        let isLockedOut = false;
 
-        // Populate Y-Axis (0-100 by 2s)
+        // Build Y-Axis labels
         const yAxis = document.getElementById('y-axis');
         for(let i=0; i<=100; i+=2) {
             let label = document.createElement('div');
@@ -126,42 +121,31 @@
             yAxis.appendChild(label);
         }
 
-        // Load Saved Graph Data
+        // Persistent Data Load
         window.onload = function() {
             months.forEach(m => {
-                const savedValue = localStorage.getItem('budget-' + m.toLowerCase());
-                if(savedValue) {
+                const val = localStorage.getItem('budget-' + m.toLowerCase());
+                if(val) {
                     const bar = document.getElementById('bar-' + m.toLowerCase());
-                    bar.style.height = savedValue + '%';
-                    bar.setAttribute('data-value', savedValue);
+                    bar.style.height = val + '%';
+                    bar.setAttribute('data-value', val);
                 }
             });
         };
 
-        // Graph Interaction Logic
-        function updateGraph(wrapper, month, event) {
-            const rect = wrapper.getBoundingClientRect();
-            const clickY = event.clientY - rect.top;
-            const heightPx = rect.height - clickY - 30; 
-            let percentage = Math.max(0, Math.min(100, Math.round((heightPx / (rect.height - 30)) * 50) * 2));
-            const bar = wrapper.querySelector('.bar');
-            bar.style.height = percentage + '%';
-            bar.setAttribute('data-value', percentage);
-            localStorage.setItem('budget-' + month, percentage);
-        }
-
         function togglePass() {
-            var p = document.getElementById("user-pass");
-            var e = document.getElementById("eye-icon");
+            const p = document.getElementById("user-pass");
+            const e = document.getElementById("eye-icon");
             p.type = p.type === "password" ? "text" : "password";
             e.innerText = p.type === "password" ? "👁️" : "🔒";
         }
 
         function unlock() {
-            var input = document.getElementById("user-pass").value.trim().toLowerCase();
+            if(isLockedOut) return;
+            const input = document.getElementById("user-pass").value.trim().toLowerCase();
             if(input === "printing4") {
+                stage = "loading";
                 document.getElementById("login-screen").style.display = "none";
-                // TRIGGER 5-SECOND LOADING
                 document.getElementById("loading-screen").style.display = "block";
                 setTimeout(() => {
                     document.getElementById("loading-screen").style.display = "none";
@@ -171,30 +155,51 @@
             } else {
                 attempts++;
                 if (attempts >= 5) startLockout();
-                else alert("ACCESS DENIED");
+                else alert("ACCESS DENIED (" + attempts + "/5)");
             }
         }
 
         function startLockout() {
+            isLockedOut = true;
+            document.getElementById("validate-btn").disabled = true;
             document.getElementById("lockout-msg").style.display = "block";
             let time = 30;
-            let timer = setInterval(() => {
+            const timer = setInterval(() => {
                 time--; document.getElementById("timer").innerText = time;
-                if(time <= 0) { clearInterval(timer); document.getElementById("lockout-msg").style.display = "none"; attempts = 0; }
+                if(time <= 0) {
+                    clearInterval(timer);
+                    isLockedOut = false;
+                    attempts = 0;
+                    document.getElementById("validate-btn").disabled = false;
+                    document.getElementById("lockout-msg").style.display = "none";
+                }
             }, 1000);
         }
 
         function handleGlobalClick() {
             if (stage === "wait") {
+                stage = "granted";
                 document.getElementById("wait-message").style.display = "none";
                 document.getElementById("granted-screen").style.display = "block";
-                stage = "granted";
                 setTimeout(() => {
                     document.getElementById("granted-screen").style.display = "none";
                     document.getElementById("final-dashboard").style.display = "flex";
                     new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 80, height: 80 });
+                    stage = "dashboard";
                 }, 1500);
             }
+        }
+
+        function updateGraph(wrapper, month, event) {
+            if(stage !== "dashboard") return;
+            const rect = wrapper.getBoundingClientRect();
+            const clickY = event.clientY - rect.top;
+            const heightPx = rect.height - clickY - 30; 
+            let percentage = Math.max(0, Math.min(100, Math.round((heightPx / (rect.height - 30)) * 50) * 2));
+            const bar = wrapper.querySelector('.bar');
+            bar.style.height = percentage + '%';
+            bar.setAttribute('data-value', percentage);
+            localStorage.setItem('budget-' + month, percentage);
         }
 
         function showStats() { document.getElementById("final-dashboard").style.display = "none"; document.getElementById("stats-page").style.display = "flex"; }
