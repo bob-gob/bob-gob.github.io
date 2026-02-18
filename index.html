@@ -9,33 +9,31 @@
         body { background-color: #0b101b; color: #00d4ff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
         .box { border: 2px solid #00d4ff; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); background: rgba(0, 0, 0, 0.95); max-width: 450px; width: 90%; }
         
-        /* Login Section */
+        /* Login & Password Eye */
         .password-container { position: relative; width: 100%; max-width: 300px; margin: 20px auto; }
         input { background: #000; border: 1px solid #00d4ff; color: #39FF14; padding: 12px; text-align: center; width: 100%; outline: none; font-size: 1.2em; box-sizing: border-box; }
+        .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; font-size: 1.2em; filter: drop-shadow(0 0 5px #00d4ff); }
         
         button { background: #00d4ff; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; color: #000; text-transform: uppercase; margin-top: 10px; transition: 0.2s; }
         button:hover:not(:disabled) { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
-        
         .reset-btn { background: #ff4d4d; color: white; margin-top: 20px; font-size: 0.8em; padding: 8px 15px; border-radius: 5px; }
-        .reset-btn:hover { background: #ff0000; box-shadow: 0 0 15px #ff0000; }
 
-        /* Screen Visibility */
+        /* Screens */
         #wait-message, #loading-screen, #granted-screen, #final-dashboard, #lockout-msg, #stats-page { display: none; }
-        
         .neon-green-prompt { color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14; font-size: 1.4em; animation: pulse 1.5s infinite; cursor: pointer; text-align: center; margin-top: 20vh;}
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        /* Decryption Spinner */
+        /* Loading Spinner */
         .spinner { border: 5px solid rgba(0, 212, 255, 0.1); border-left-color: #39FF14; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         #percent-text { font-size: 1.5em; color: #39FF14; font-weight: bold; margin-top: 10px; }
 
-        /* Dashboard & Stats Layout */
+        /* Layouts */
         #final-dashboard, #stats-page { width: 95%; max-width: 1200px; flex-direction: column; align-items: center; padding: 30px 10px; }
         .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 100%; margin-top: 20px; }
         .card { background: rgba(255, 255, 255, 0.03); border: 1px solid #222; padding: 20px; border-radius: 15px; }
 
-        /* Financial Charts */
+        /* Graphs */
         .dual-graph-wrapper { display: flex; width: 100%; gap: 40px; justify-content: space-between; margin-top: 20px; }
         .graph-section { flex: 1; display: flex; flex-direction: column; align-items: center; }
         .graph-container { display: flex; height: 300px; width: 100%; border-left: 2px solid #00d4ff; border-bottom: 2px solid #00d4ff; position: relative; padding-top: 20px; background: rgba(0, 212, 255, 0.02); }
@@ -67,6 +65,7 @@
         <h1 style="letter-spacing: 3px;">SYSTEM ENCRYPTED</h1>
         <div class="password-container">
             <input type="password" id="user-pass" placeholder="ENTER ACCESS KEY" autofocus>
+            <span class="toggle-password" onclick="toggleVisibility()">👁️</span>
         </div>
         <button id="validate-btn" onclick="unlock()">VALIDATE</button>
         <div id="lockout-msg" style="color:#ff4d4d; margin-top:10px; display:none;">LOCKOUT ACTIVE: <span id="timer">30</span>s</div>
@@ -145,20 +144,19 @@
         let isLockedOut = false;
         const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-        // Initialize App
-        function init() {
-            setupGraphs();
-            updateYearDisplay();
+        function init() { setupGraphs(); updateYearDisplay(); }
+
+        function toggleVisibility() {
+            const p = document.getElementById("user-pass");
+            p.type = p.type === "password" ? "text" : "password";
         }
 
         function setupGraphs() {
             ['spent', 'earned'].forEach(type => {
                 const axis = document.getElementById(`y-${type}`);
-                for(let i=0; i<=100; i+=10) { 
-                    let d = document.createElement('div'); d.innerText = i; axis.appendChild(d); 
-                }
+                for(let i=0; i<=100; i+=10) { let d = document.createElement('div'); d.innerText = i; axis.appendChild(d); }
                 const area = document.getElementById(`${type}-bars`);
-                area.innerHTML = ''; // Clear for reset
+                area.innerHTML = '';
                 months.forEach(m => {
                     const wrap = document.createElement('div'); wrap.className = 'bar-wrapper';
                     wrap.onclick = (e) => updateGraph(wrap, type, m.toLowerCase(), e);
@@ -177,20 +175,16 @@
 
         function unlock() {
             if(isLockedOut) return;
-            const input = document.getElementById("user-pass").value.trim().toLowerCase();
-            if(input === "printing4") {
-                stage = "loading";
-                document.getElementById("login-screen").style.display = "none";
+            if(document.getElementById("user-pass").value.trim().toLowerCase() === "printing4") {
+                stage = "loading"; document.getElementById("login-screen").style.display = "none";
                 document.getElementById("loading-screen").style.display = "block";
                 const pt = document.getElementById("percent-text");
-                // Sequence: 48% (3s) -> 99% (5s) -> 100% (3s)
                 setTimeout(() => pt.innerText = "48%", 0);
                 setTimeout(() => pt.innerText = "99%", 3000);
                 setTimeout(() => pt.innerText = "100%", 8000);
                 setTimeout(() => {
                     document.getElementById("loading-screen").style.display = "none";
-                    document.getElementById("wait-message").style.display = "block"; 
-                    stage = "wait";
+                    document.getElementById("wait-message").style.display = "block"; stage = "wait";
                 }, 11000); 
             } else {
                 attempts++; if (attempts >= 5) startLockout(); else alert("ACCESS DENIED");
@@ -226,8 +220,6 @@
             const netDisp = document.getElementById("net-profit");
             netDisp.innerText = (profit >= 0 ? "+$" : "-$") + Math.abs(profit);
             netDisp.className = profit >= 0 ? "profit-pos" : "profit-neg";
-
-            // Goal Progress (Target $120)
             const goalPercent = Math.min(100, Math.max(0, (profit / 120) * 100));
             document.getElementById("goal-bar").style.width = goalPercent + "%";
             document.getElementById("goal-percent").innerText = Math.floor(goalPercent) + "%";
@@ -247,15 +239,13 @@
 
         function handleGlobalClick() {
             if (stage === "wait") {
-                stage = "granted"; 
-                document.getElementById("wait-message").style.display = "none";
+                stage = "granted"; document.getElementById("wait-message").style.display = "none";
                 document.getElementById("granted-screen").style.display = "block";
                 setTimeout(() => {
                     document.getElementById("granted-screen").style.display = "none";
                     document.getElementById("final-dashboard").style.display = "flex";
                     new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 80, height: 80 });
-                    stage = "dashboard"; 
-                    calculateFinance();
+                    stage = "dashboard"; calculateFinance();
                 }, 1500);
             }
         }
