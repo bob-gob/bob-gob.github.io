@@ -8,274 +8,115 @@
     <style>
         body { background-color: #0b101b; color: #00d4ff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
         .box { border: 2px solid #00d4ff; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); background: rgba(0, 0, 0, 0.95); max-width: 450px; width: 90%; }
-        
-        /* Login & Password Eye */
+
         .password-container { position: relative; width: 100%; max-width: 300px; margin: 20px auto; }
         input { background: #000; border: 1px solid #00d4ff; color: #39FF14; padding: 12px; text-align: center; width: 100%; outline: none; font-size: 1.2em; box-sizing: border-box; }
         .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; font-size: 1.2em; filter: drop-shadow(0 0 5px #00d4ff); }
-        
+
         button { background: #00d4ff; border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; color: #000; text-transform: uppercase; margin-top: 10px; transition: 0.2s; }
         button:hover:not(:disabled) { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
         .reset-btn { background: #ff4d4d; color: white; margin-top: 20px; font-size: 0.8em; padding: 8px 15px; border-radius: 5px; }
 
-        /* Screens */
         #wait-message, #loading-screen, #granted-screen, #final-dashboard, #lockout-msg, #stats-page, #wipe-screen { display: none; }
         .neon-green-prompt { color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14; font-size: 1.4em; animation: pulse 1.5s infinite; cursor: pointer; text-align: center; margin-top: 20vh;}
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        /* Spinner */
         .spinner { border: 5px solid rgba(0, 212, 255, 0.1); border-left-color: #39FF14; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        
-        /* Layouts */
+
         #final-dashboard, #stats-page { width: 95%; max-width: 1200px; flex-direction: column; align-items: center; padding: 30px 10px; }
         .gallery { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px; width: 100%; margin-top: 20px; }
         .card { background: rgba(255, 255, 255, 0.03); border: 1px solid #222; padding: 20px; border-radius: 15px; }
-
-        /* Financials */
-        .dual-graph-wrapper { display: flex; width: 100%; gap: 40px; justify-content: space-between; margin-top: 20px; }
-        .graph-section { flex: 1; display: flex; flex-direction: column; align-items: center; }
-        .graph-container { display: flex; height: 300px; width: 100%; border-left: 2px solid #00d4ff; border-bottom: 2px solid #00d4ff; position: relative; padding-top: 20px; background: rgba(0, 212, 255, 0.02); }
-        .y-axis { position: absolute; left: -45px; height: 100%; display: flex; flex-direction: column-reverse; justify-content: space-between; font-size: 0.7em; color: #888; width: 40px; text-align: right; }
-        .bars-area { display: flex; justify-content: space-around; align-items: flex-end; width: 100%; height: 100%; padding: 0 5px; }
-        .bar-wrapper { display: flex; flex-direction: column; align-items: center; width: 7%; height: 100%; justify-content: flex-end; cursor: pointer; }
-        .bar { width: 100%; border-radius: 2px 2px 0 0; transition: height 0.4s ease-out; height: 0%; position: relative; }
-        .bar.spent { background: linear-gradient(to top, #00d4ff, #39FF14); }
-        .bar.earned { background: linear-gradient(to top, #00d4ff, #ff00ff); }
-
-        .calculator-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-top: 30px; }
-        .calc-box { padding: 20px; border: 1px solid #00d4ff; border-radius: 10px; background: rgba(0, 212, 255, 0.05); text-align: center; }
-
-        .goal-container { width: 100%; height: 25px; background: #222; border-radius: 15px; margin-top: 10px; overflow: hidden; border: 1px solid #00d4ff; position: relative; }
-        #goal-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #00d4ff, #39FF14); transition: width 0.8s ease-in-out; }
-        #goal-percent { position: absolute; width: 100%; text-align: center; font-size: 0.8em; font-weight: bold; color: white; top: 50%; transform: translateY(-50%); }
 
         .logout-btn { position: fixed; top: 20px; right: 20px; background: transparent; border: 1px solid #ff4d4d; color: #ff4d4d; padding: 8px 15px; border-radius: 5px; cursor: pointer; z-index: 100;}
     </style>
 </head>
 <body oncontextmenu="return false;" onclick="handleGlobalClick()">
 
-    <div class="box" id="login-screen">
-        <h1 style="letter-spacing: 3px;">SYSTEM ENCRYPTED</h1>
-        <div class="password-container">
-            <input type="password" id="user-pass" placeholder="ENTER ACCESS KEY" autofocus>
-            <span class="toggle-password" id="eye-icon" onclick="toggleVisibility()">👁️</span>
-        </div>
-        <button id="validate-btn" onclick="unlock()">VALIDATE</button>
-        <div id="lockout-msg" style="color:#ff4d4d; margin-top:10px; display:none;">SECURITY ALERT: <span id="timer">30</span>s</div>
+<div class="box" id="login-screen">
+    <h1 style="letter-spacing: 3px;">SYSTEM ENCRYPTED</h1>
+    <div class="password-container">
+        <input type="password" id="user-pass" placeholder="ENTER ACCESS KEY" autofocus>
+        <span class="toggle-password" id="eye-icon" onclick="toggleVisibility()">👁️</span>
     </div>
+    <button id="validate-btn" onclick="unlock()">VALIDATE</button>
+    <div id="lockout-msg" style="color:#ff4d4d; margin-top:10px; display:none;">SECURITY ALERT: <span id="timer">30</span>s</div>
+</div>
 
-    <div class="box" id="wipe-screen">
-        <h1 style="color: #ff4d4d;">CRITICAL ERROR</h1>
-        <p style="color: #ff4d4d;">DATA PURGED DUE TO 10 FAILED ATTEMPTS.</p>
-        <div class="password-container">
-            <input type="password" id="override-pass" placeholder="TYPE OVERRIDE CODE">
-        </div>
-        <button onclick="restoreSystem()">RESTORE SYSTEM</button>
-    </div>
+<script>
+let stage = "locked";
+let attempts = parseInt(localStorage.getItem('failed-attempts')) || 0;
+let isLockedOut = false;
+let lockoutDone = localStorage.getItem('lockout-done') === 'true';
 
-    <div class="box" id="loading-screen">
-        <div class="spinner"></div>
-        <h2 style="letter-spacing: 5px;">DECRYPTING</h2>
-        <div id="percent-text" style="font-size: 1.5em; color: #39FF14; font-weight: bold;">0%</div>
-    </div>
+function toggleVisibility() {
+    const p = document.getElementById("user-pass");
+    const icon = document.getElementById("eye-icon");
+    if (p.type === "password") {
+        p.type = "text"; icon.innerText = "👁️‍🗨️";
+    } else {
+        p.type = "password"; icon.innerText = "👁️";
+    }
+}
 
-    <div id="wait-message"><p class="neon-green-prompt">CLICK ANYWHERE TO ENTER</p></div>
-    <div class="box" id="granted-screen"><h1 style="color: #39FF14;">ACCESS GRANTED</h1></div>
+/* ===========================
+   UPDATED UNLOCK FUNCTION
+   =========================== */
+function unlock() {
+    if (isLockedOut) return;
 
-    <div id="final-dashboard">
-        <button class="logout-btn" onclick="location.reload()">LOG OUT</button>
-        <h2 style="color: #39FF14;">> PROJECT_VAULT_<span class="year-val">2026</span></h2>
-        <div class="gallery">
-            <div class="card"><img src="https://via.placeholder.com/400x250/0b101b/39FF14?text=Astronaut" width="100%"><h3>PROJECT 1</h3></div>
-            <div class="card"><img src="https://via.placeholder.com/400x250/0b101b/00d4ff?text=Dragon+Octopus" width="100%"><h3>PROJECT 2</h3></div>
-        </div>
-        <button onclick="showStats()" style="margin-top: 40px;">FINANCIAL OVERVIEW</button>
-        <div id="qrcode" style="margin-top: 20px; background: white; padding: 5px; border-radius: 5px;"></div>
-    </div>
+    const input = document.getElementById("user-pass").value.trim().toLowerCase();
 
-    <div id="stats-page">
-        <button class="logout-btn" onclick="location.reload()">LOG OUT</button>
-        <h2 style="color: #39FF14;">> REVENUE_CONTROL_<span class="year-val">2026</span></h2>
-        <div class="dual-graph-wrapper">
-            <div class="graph-section"><h3>SPENT</h3><div class="graph-container"><div class="y-axis" id="y-spent"></div><div class="bars-area" id="spent-bars"></div></div></div>
-            <div class="graph-section"><h3>EARNED</h3><div class="graph-container"><div class="y-axis" id="y-earned"></div><div class="bars-area" id="earned-bars"></div></div></div>
-        </div>
-        <div class="calculator-grid">
-            <div class="calc-box"><p>YEARLY EARNED</p><h2 id="total-earned" style="color: #ff00ff;">$0</h2></div>
-            <div class="calc-box"><p>NET PROFIT</p><h2 id="net-profit" style="color: #39FF14;">$0</h2></div>
-        </div>
-        <div class="calc-box" style="width: 100%; margin-top: 20px;">
-            <p><span class="year-val">2026</span> PROFIT GOAL: $120.00</p>
-            <div class="goal-container"><div id="goal-bar"></div><div id="goal-percent">0%</div></div>
-            <button class="reset-btn" onclick="resetAndAdvance()">RESET & ADVANCE YEAR</button>
-        </div>
-        <button onclick="showProjects()" style="margin-top: 40px;">BACK TO PROJECTS</button>
-    </div>
+    // Main password (change anytime)
+    const MAIN_PASSWORD = "printing4";
 
-    <script>
-        let stage = "locked";
-        let attempts = parseInt(localStorage.getItem('failed-attempts')) || 0;
-        let isLockedOut = false;
-        let lockoutDone = localStorage.getItem('lockout-done') === 'true'; // Tracks if the 5-try lock has happened
-        const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    // Admin override (ALWAYS allowed)
+    const ADMIN_PASSWORD = "admin";
 
-        function init() {
-            if (localStorage.getItem('system-wiped') === 'true') {
-                document.getElementById("login-screen").style.display = "none";
-                document.getElementById("wipe-screen").style.display = "block";
-            }
-            setupGraphs();
-            updateYearDisplay();
+    if (input === MAIN_PASSWORD || input === ADMIN_PASSWORD) {
+
+        localStorage.setItem('failed-attempts', 0);
+        localStorage.setItem('lockout-done', 'false');
+        startLoading();
+
+    } else {
+        attempts++;
+        localStorage.setItem('failed-attempts', attempts);
+
+        if (attempts >= 10) {
+            localStorage.clear();
+            localStorage.setItem('system-wiped', 'true');
+            location.reload();
+        } else if (attempts === 5 && !lockoutDone) {
+            localStorage.setItem('lockout-done', 'true');
+            startLockout();
+        } else {
+            alert("ACCESS DENIED: " + (10 - attempts) + " ATTEMPTS LEFT.");
         }
+    }
+}
 
-        function toggleVisibility() {
-            const p = document.getElementById("user-pass");
-            const icon = document.getElementById("eye-icon");
-            if (p.type === "password") {
-                p.type = "text"; icon.innerText = "👁️‍🗨️";
-            } else {
-                p.type = "password"; icon.innerText = "👁️";
-            }
+function startLoading() {
+    alert("ACCESS GRANTED");
+}
+
+function startLockout() {
+    isLockedOut = true;
+    document.getElementById("validate-btn").disabled = true;
+    document.getElementById("lockout-msg").style.display = "block";
+    let time = 30;
+
+    const timer = setInterval(() => {
+        time--;
+        document.getElementById("timer").innerText = time;
+        if(time <= 0){
+            clearInterval(timer);
+            isLockedOut = false;
+            document.getElementById("validate-btn").disabled = false;
+            document.getElementById("lockout-msg").style.display = "none";
         }
-
-        function unlock() {
-            if(isLockedOut) return;
-            const input = document.getElementById("user-pass").value.trim().toLowerCase();
-            
-            if(input === "printing4") {
-                localStorage.setItem('failed-attempts', 0);
-                localStorage.setItem('lockout-done', 'false');
-                startLoading();
-            } else {
-                attempts++;
-                localStorage.setItem('failed-attempts', attempts);
-                
-                if (attempts >= 10) {
-                    localStorage.clear();
-                    localStorage.setItem('system-wiped', 'true');
-                    location.reload();
-                } else if (attempts === 5 && !lockoutDone) {
-                    localStorage.setItem('lockout-done', 'true');
-                    startLockout();
-                } else {
-                    alert("ACCESS DENIED: " + (10 - attempts) + " ATTEMPTS LEFT.");
-                }
-            }
-        }
-
-        function restoreSystem() {
-            if (document.getElementById("override-pass").value === "18gb") {
-                localStorage.removeItem('system-wiped');
-                localStorage.setItem('failed-attempts', 0);
-                localStorage.setItem('lockout-done', 'false');
-                location.reload();
-            } else { alert("INVALID OVERRIDE CODE"); }
-        }
-
-        function startLoading() {
-            stage = "loading";
-            document.getElementById("login-screen").style.display = "none";
-            document.getElementById("loading-screen").style.display = "block";
-            const pt = document.getElementById("percent-text");
-            setTimeout(() => pt.innerText = "48%", 0);
-            setTimeout(() => pt.innerText = "99%", 3000);
-            setTimeout(() => pt.innerText = "100%", 8000);
-            setTimeout(() => {
-                document.getElementById("loading-screen").style.display = "none";
-                document.getElementById("wait-message").style.display = "block"; 
-                stage = "wait";
-            }, 11000); 
-        }
-
-        function setupGraphs() {
-            ['spent', 'earned'].forEach(type => {
-                const axis = document.getElementById(`y-${type}`);
-                axis.innerHTML = '';
-                for(let i=0; i<=100; i+=10) { let d = document.createElement('div'); d.innerText = i; axis.appendChild(d); }
-                const area = document.getElementById(`${type}-bars`);
-                area.innerHTML = '';
-                months.forEach(m => {
-                    const wrap = document.createElement('div'); wrap.className = 'bar-wrapper';
-                    wrap.onclick = (e) => updateGraph(wrap, type, m.toLowerCase(), e);
-                    const bar = document.createElement('div'); bar.className = `bar ${type}`; bar.id = `bar-${type}-${m.toLowerCase()}`;
-                    wrap.appendChild(bar); 
-                    const label = document.createElement('div'); label.style.fontSize="0.6em"; label.innerText = m;
-                    wrap.appendChild(label); area.appendChild(wrap);
-                });
-            });
-        }
-
-        function updateGraph(wrapper, type, month, event) {
-            if(stage !== "dashboard") return;
-            const rect = wrapper.getBoundingClientRect();
-            const clickY = event.clientY - rect.top;
-            const heightPx = rect.height - 20 - clickY; 
-            let val = Math.max(0, Math.min(100, Math.round((heightPx / (rect.height - 20)) * 20) * 5));
-            localStorage.setItem(`elite-${type}-${month}`, val);
-            calculateFinance();
-        }
-
-        function calculateFinance() {
-            let totalS = 0, totalE = 0;
-            months.forEach(m => {
-                const s = parseInt(localStorage.getItem(`elite-spent-${m.toLowerCase()}`) || 0);
-                const e = parseInt(localStorage.getItem(`elite-earned-${m.toLowerCase()}`) || 0);
-                totalS += s; totalE += e;
-                const sB = document.getElementById(`bar-spent-${m.toLowerCase()}`);
-                const eB = document.getElementById(`bar-earned-${m.toLowerCase()}`);
-                if(sB) sB.style.height = s + '%';
-                if(eB) eB.style.height = e + '%';
-            });
-            const profit = totalE - totalS;
-            document.getElementById("total-earned").innerText = "$" + totalE;
-            document.getElementById("net-profit").innerText = (profit >= 0 ? "+$" : "-$") + Math.abs(profit);
-            document.getElementById("goal-bar").style.width = Math.min(100, (profit / 120) * 100) + "%";
-            document.getElementById("goal-percent").innerText = Math.floor(Math.min(100, (profit / 120) * 100)) + "%";
-        }
-
-        function resetAndAdvance() {
-            if(confirm("Confirm Year Advance?")) {
-                const nextYear = parseInt(localStorage.getItem('elite4-year') || 2026) + 1;
-                localStorage.setItem('elite4-year', nextYear);
-                months.forEach(m => { localStorage.removeItem(`elite-spent-${m.toLowerCase()}`); localStorage.removeItem(`elite-earned-${m.toLowerCase()}`); });
-                location.reload();
-            }
-        }
-
-        function handleGlobalClick() {
-            if (stage === "wait") {
-                stage = "granted"; document.getElementById("wait-message").style.display = "none";
-                document.getElementById("granted-screen").style.display = "block";
-                setTimeout(() => {
-                    document.getElementById("granted-screen").style.display = "none";
-                    document.getElementById("final-dashboard").style.display = "flex";
-                    new QRCode(document.getElementById("qrcode"), { text: window.location.href, width: 80, height: 80 });
-                    stage = "dashboard"; calculateFinance();
-                }, 1500);
-            }
-        }
-
-        function startLockout() {
-            isLockedOut = true; 
-            document.getElementById("validate-btn").disabled = true;
-            document.getElementById("lockout-msg").style.display = "block";
-            let time = 30;
-            const timer = setInterval(() => {
-                time--; document.getElementById("timer").innerText = time;
-                if(time <= 0) { 
-                    clearInterval(timer); 
-                    isLockedOut = false; 
-                    document.getElementById("validate-btn").disabled = false; 
-                    document.getElementById("lockout-msg").style.display = "none"; 
-                }
-            }, 1000);
-        }
-
-        function updateYearDisplay() { const y = localStorage.getItem('elite4-year') || 2026; document.querySelectorAll('.year-val').forEach(el => el.innerText = y); }
-        function showStats() { document.getElementById("final-dashboard").style.display = "none"; document.getElementById("stats-page").style.display = "flex"; }
-        function showProjects() { document.getElementById("stats-page").style.display = "none"; document.getElementById("final-dashboard").style.display = "flex"; }
-        init();
-    </script>
+    },1000);
+}
+</script>
 </body>
 </html>
