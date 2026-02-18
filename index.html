@@ -9,7 +9,7 @@
         body { background-color: #0b101b; color: #00d4ff; font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
         .box { border: 2px solid #00d4ff; padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); background: rgba(0, 0, 0, 0.95); max-width: 450px; width: 90%; }
         
-        /* Login Elements */
+        /* Login */
         .password-container { position: relative; width: 100%; max-width: 300px; margin: 20px auto; }
         input { background: #000; border: 1px solid #00d4ff; color: #39FF14; padding: 12px; text-align: center; width: 100%; outline: none; font-size: 1.2em; box-sizing: border-box; }
         .toggle-password { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; user-select: none; }
@@ -18,15 +18,16 @@
         button:hover:not(:disabled) { background: #39FF14; box-shadow: 0 0 15px #39FF14; }
         button:disabled { background: #333; color: #666; cursor: not-allowed; }
 
-        /* Screen Visibility */
+        /* Screens */
         #wait-message, #loading-screen, #granted-screen, #final-dashboard, #lockout-msg, #stats-page { display: none; }
         .neon-green-prompt { color: #39FF14; font-weight: bold; text-shadow: 0 0 15px #39FF14; font-size: 1.4em; animation: pulse 1.5s infinite; cursor: pointer; text-align: center;}
         
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
 
-        /* Loading Spinner */
+        /* Spinner */
         .spinner { border: 5px solid rgba(0, 212, 255, 0.1); border-left-color: #39FF14; border-radius: 50%; width: 60px; height: 60px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        #percent-text { font-size: 1.5em; color: #39FF14; font-weight: bold; margin-top: 10px; }
 
         /* Dashboard & Cards */
         #final-dashboard, #stats-page { width: 90%; max-width: 1000px; flex-direction: column; align-items: center; padding: 50px 20px; }
@@ -34,7 +35,7 @@
         .card { background: rgba(255, 255, 255, 0.03); border: 1px solid #222; padding: 20px; border-radius: 15px; text-align: left; }
         .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 8px; border: 1px solid #00d4ff; }
 
-        /* Graph Styling */
+        /* Graph */
         .graph-container { display: flex; height: 500px; width: 100%; margin-top: 40px; border-left: 2px solid #00d4ff; border-bottom: 2px solid #00d4ff; position: relative; padding-top: 20px; background: rgba(0, 212, 255, 0.02); }
         .y-axis { position: absolute; left: -55px; height: 100%; display: flex; flex-direction: column-reverse; justify-content: space-between; font-size: 0.8em; color: #888; width: 50px; text-align: right; pointer-events: none; }
         .bars-area { display: flex; justify-content: space-around; align-items: flex-end; width: 100%; height: 100%; padding: 0 10px; }
@@ -60,8 +61,9 @@
 
     <div class="box" id="loading-screen">
         <div class="spinner"></div>
-        <h2 style="letter-spacing: 5px; animation: pulse 1s infinite;">LOADING...</h2>
-        <p style="font-size: 0.7em; color: #888;">Synchronizing Vault Data...</p>
+        <h2 style="letter-spacing: 5px;">DECRYPTING</h2>
+        <div id="percent-text">0%</div>
+        <p style="font-size: 0.7em; color: #888; margin-top: 15px;">Accessing Member Vault...</p>
     </div>
 
     <div id="wait-message"><p class="neon-green-prompt">CLICK ANYWHERE TO CONTINUE</p></div>
@@ -72,7 +74,7 @@
         <h2 style="color: #39FF14;">> MEMBER_VAULT_2026</h2>
         <div class="gallery">
             <div class="card">
-                <img src="https://via.placeholder.com/400x250/0b101b/39FF14?text=Astronaut+Project" alt="P1">
+                <img src="https://via.placeholder.com/400x250/0b101b/39FF14?text=Astronaut" alt="P1">
                 <h3>PROJECT 1</h3>
                 <p>Astronaut project: Monday completion.</p>
             </div>
@@ -113,7 +115,6 @@
         let attempts = 0;
         let isLockedOut = false;
 
-        // Build Y-Axis labels
         const yAxis = document.getElementById('y-axis');
         for(let i=0; i<=100; i+=2) {
             let label = document.createElement('div');
@@ -121,7 +122,6 @@
             yAxis.appendChild(label);
         }
 
-        // Persistent Data Load
         window.onload = function() {
             months.forEach(m => {
                 const val = localStorage.getItem('budget-' + m.toLowerCase());
@@ -147,15 +147,24 @@
                 stage = "loading";
                 document.getElementById("login-screen").style.display = "none";
                 document.getElementById("loading-screen").style.display = "block";
-                setTimeout(() => {
+                
+                const pText = document.getElementById("percent-text");
+
+                // 11-Second Sequence
+                setTimeout(() => { pText.innerText = "48%"; }, 0);      // Starts at 48%
+                setTimeout(() => { pText.innerText = "99%"; }, 3000);   // After 3s, goes to 99%
+                setTimeout(() => { pText.innerText = "100%"; }, 8000);  // After another 5s (8s total), goes to 100%
+                
+                setTimeout(() => {                                      // After final 3s (11s total)
                     document.getElementById("loading-screen").style.display = "none";
                     document.getElementById("wait-message").style.display = "block"; 
                     stage = "wait";
-                }, 5000); 
+                }, 11000); 
+
             } else {
                 attempts++;
                 if (attempts >= 5) startLockout();
-                else alert("ACCESS DENIED (" + attempts + "/5)");
+                else alert("ACCESS DENIED");
             }
         }
 
