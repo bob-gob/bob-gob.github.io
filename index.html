@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite 4 | Final Absolute Portal</title>
+    <title>Elite 4 | Access Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <style>
         :root { --blue: #00d4ff; --green: #39FF14; --red: #ff4d4d; --bg: #0b101b; }
-        body { background-color: var(--bg); color: var(--blue); font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; transition: border 0.3s; box-sizing: border-box; }
+        body { background-color: var(--bg); color: var(--blue); font-family: 'Courier New', monospace; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; transition: border 0.3s; }
         
-        /* Global Red Alert Flashing from your code */
+        /* Global Red Alert - 15px flashing border */
         .global-lock-active { border: 15px solid var(--red) !important; animation: redPulse 1.5s infinite; }
-        @keyframes redPulse { 0% { box-shadow: inset 0 0 50px var(--red), 0 0 20px var(--red); } 50% { box-shadow: inset 0 0 100px var(--red), 0 0 50px var(--red); } 100% { box-shadow: inset 0 0 50px var(--red), 0 0 20px var(--red); } }
+        @keyframes redPulse { 0% { box-shadow: inset 0 0 50px var(--red); } 50% { box-shadow: inset 0 0 150px var(--red); } 100% { box-shadow: inset 0 0 50px var(--red); } }
 
         .box { border: 2px solid var(--blue); padding: 40px; border-radius: 20px; text-align: center; box-shadow: 0 0 30px rgba(0, 212, 255, 0.4); background: rgba(0, 0, 0, 0.95); max-width: 450px; width: 90%; position: relative; z-index: 10; }
         
@@ -21,43 +21,43 @@
 
         button { background: var(--blue); border: none; padding: 12px 25px; cursor: pointer; font-weight: bold; color: #000; text-transform: uppercase; margin-top: 10px; transition: 0.2s; width: 100%; }
         button:hover:not(:disabled) { background: var(--green); box-shadow: 0 0 15px var(--green); }
-        button:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* Screens */
+        /* Navigation Screens */
         #sync-screen, #wipe-screen, #login-screen, #loading-screen, #final-dashboard, #stats-page { display: none; }
         
         .spinner { border: 5px solid rgba(0, 212, 255, 0.1); border-left-color: var(--green); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 20px auto; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
-        /* Dashboard & Stats */
-        #final-dashboard, #stats-page { width: 95%; max-width: 1200px; flex-direction: column; align-items: center; padding: 30px 10px; }
-        .card { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--blue); padding: 20px; border-radius: 15px; width: 100%; max-width: 400px; margin-top: 20px; text-align: center; }
+        /* Dashboard & Stats Layout */
+        #final-dashboard, #stats-page { width: 95%; max-width: 1100px; flex-direction: column; align-items: center; padding: 30px 10px; }
+        .card { background: rgba(255, 255, 255, 0.05); border: 1px solid var(--blue); padding: 20px; border-radius: 15px; width: 100%; margin-top: 20px; text-align: center; }
         
-        .graph-container { display: flex; height: 200px; width: 100%; border-left: 1px solid var(--blue); border-bottom: 1px solid var(--blue); margin-top: 20px; align-items: flex-end; justify-content: space-around; background: rgba(0,0,0,0.3); }
+        /* Financial Graph Styles */
+        .graph-container { display: flex; height: 200px; width: 100%; border-left: 1px solid var(--blue); border-bottom: 1px solid var(--blue); align-items: flex-end; justify-content: space-around; background: rgba(0,0,0,0.4); margin-top: 10px; }
         .bar-wrapper { width: 7%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; cursor: pointer; }
-        .bar { width: 100%; transition: height 0.3s; background: linear-gradient(to top, var(--blue), var(--green)); }
+        .bar { width: 100%; transition: height 0.4s; background: linear-gradient(to top, var(--blue), var(--green)); }
         .bar.earned { background: linear-gradient(to top, #ff00ff, var(--blue)); }
 
         .goal-container { width: 100%; height: 20px; background: #000; border: 1px solid var(--blue); border-radius: 10px; margin-top: 10px; overflow: hidden; }
         #goal-bar { height: 100%; background: var(--green); width: 0%; transition: 1s; }
         .kill-switch { background: var(--red); color: white; margin-top: 15px; }
-        .logout-btn { position: fixed; top: 20px; right: 20px; border: 1px solid var(--red); color: var(--red); background: none; padding: 8px 15px; cursor: pointer; }
+        .logout-btn { position: fixed; top: 20px; right: 20px; border: 1px solid var(--red); color: var(--red); background: none; padding: 8px 15px; cursor: pointer; z-index: 100; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div class="box" id="sync-screen" style="display: block;">
         <div class="spinner"></div>
-        <p>SYNCHRONIZING GLOBAL SYSTEM...</p>
+        <p>RE-ESTABLISHING GLOBAL SYNC...</p>
     </div>
 
     <div class="box" id="wipe-screen">
-        <h1 style="color: var(--red);">GLOBAL LOCKDOWN</h1>
-        <p style="color: var(--red); font-weight: bold;">CRITICAL SECURITY OVERRIDE ACTIVE</p>
+        <h1 style="color: var(--red); letter-spacing: 2px;">GLOBAL LOCKDOWN</h1>
+        <p style="color: var(--red); font-weight: bold;">SECURITY OVERRIDE ACTIVE</p>
         <div class="password-container">
             <input type="password" id="override-pass" placeholder="TYPE 18GB">
         </div>
-        <button onclick="globalRestore()" style="background: var(--red); color: white;">EXECUTE GLOBAL RESTORE</button>
+        <button onclick="globalRestore()" style="background: var(--red); color: white;">RESTORE GLOBAL PORTAL</button>
     </div>
 
     <div class="box" id="login-screen">
@@ -66,14 +66,14 @@
             <input type="password" id="user-pass" placeholder="ENTER ACCESS KEY" autofocus>
             <span class="toggle-password" id="eye-icon" onclick="toggleVisibility()">👁️</span>
         </div>
-        <button id="validate-btn" onclick="unlock()">VALIDATE</button>
+        <button id="validate-btn" onclick="checkLogin()">VALIDATE</button>
         <div id="lockout-msg" style="color:var(--red); margin-top:10px; display:none;">SECURITY ALERT: <span id="timer">30</span>s</div>
         <p id="attempt-warning" style="color: var(--red); font-size: 0.8em; margin-top: 15px;"></p>
     </div>
 
     <div class="box" id="loading-screen">
         <div class="spinner"></div>
-        <h2>SYNCING VAULT...</h2>
+        <h2>DECRYPTING SECURE VAULT...</h2>
     </div>
 
     <div id="final-dashboard">
@@ -81,38 +81,38 @@
         <h2 style="color: var(--green);">[SYSTEM_ACCESS_GRANTED]</h2>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; width: 100%;">
             <div class="card">
-                <h3>FINANCIAL DATA</h3>
-                <button onclick="showStats()">OPEN GRAPHS</button>
+                <h3>FINANCIALS</h3>
+                <button onclick="showStats()">OPEN GRAPHS & CALC</button>
             </div>
             <div class="card">
-                <h3>OVERRIDE LOGS</h3>
-                <p>Events Detected: <span id="override-count" style="color: var(--red);">0</span></p>
-                <div id="qrcode" style="background:#fff; padding:5px; width:100px; height:100px; margin: 10px auto;"></div>
+                <h3>GLOBAL SYNC</h3>
+                <p>Override Logs: <span id="override-count" style="color: var(--red);">0</span></p>
+                <div id="qrcode" style="background:#fff; padding:5px; width:100px; height:100px; margin: 10px auto; border-radius: 5px;"></div>
             </div>
             <div class="card">
-                <h3>SYSTEM SECURITY</h3>
-                <button class="kill-switch" onclick="manualKill()">MANUAL GLOBAL LOCK</button>
+                <h3>SECURITY</h3>
+                <button class="kill-switch" onclick="manualKill()">TRIGGER GLOBAL LOCK</button>
             </div>
         </div>
     </div>
 
     <div id="stats-page">
         <button class="logout-btn" onclick="showDashboard()">BACK</button>
-        <h2>2026 REVENUE TRACKING</h2>
+        <h2>2026 REVENUE & SPENDING</h2>
         <div style="display:flex; gap:20px; width:100%; flex-wrap:wrap;">
             <div style="flex:1; min-width:300px;">
-                <h3>SPENT</h3>
+                <h3>SPENT (EDITABLE)</h3>
                 <div class="graph-container" id="spent-bars"></div>
             </div>
             <div style="flex:1; min-width:300px;">
-                <h3>EARNED</h3>
+                <h3>EARNED (EDITABLE)</h3>
                 <div class="graph-container" id="earned-bars"></div>
             </div>
         </div>
-        <div class="card" style="max-width: 600px; margin-top: 30px;">
+        <div class="card" style="max-width: 600px; margin: 30px auto;">
             <p>NET PROFIT: <span id="net-profit" style="color: var(--green); font-size: 1.5em;">$0</span></p>
             <div class="goal-container"><div id="goal-bar"></div></div>
-            <p style="font-size: 0.8em; margin-top: 5px;">ANNUAL GOAL PROGRESS: <span id="goal-text">0%</span></p>
+            <p style="font-size: 0.8em; margin-top: 5px;">2026 GOAL PROGRESS: <span id="goal-text">0%</span></p>
         </div>
     </div>
 
@@ -123,9 +123,8 @@
         const API_HIT = `https://api.counterapi.dev/v1/${NAMESPACE}/${KEY}/up`;
         const months = ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"];
 
-        let attempts = parseInt(localStorage.getItem('failed-attempts')) || 0;
+        let localAttempts = 0;
         let isLockedOut = false;
-        let lockoutDone = localStorage.getItem('lockout-done') === 'true';
 
         async function init() {
             try {
@@ -154,24 +153,21 @@
             icon.innerText = (p.type === "password") ? "👁️" : "👁️‍🗨️";
         }
 
-        function unlock() {
+        async function checkLogin() {
             if (isLockedOut) return;
-            const input = document.getElementById("user-pass").value.trim().toLowerCase();
-            if (input === "printing4" || input === "admin") {
-                localStorage.setItem('failed-attempts', 0);
-                localStorage.setItem('lockout-done', 'false');
+            const pass = document.getElementById("user-pass").value.trim().toLowerCase();
+            if (pass === "printing4" || pass === "admin") {
                 showScreen("loading-screen");
                 setTimeout(() => { showScreen("final-dashboard"); updateCalc(); }, 1500);
             } else {
-                attempts++;
-                localStorage.setItem('failed-attempts', attempts);
-                if (attempts >= 10) {
-                    triggerGlobalLock();
-                } else if (attempts === 5 && !lockoutDone) {
-                    localStorage.setItem('lockout-done', 'true');
+                localAttempts++;
+                if (localAttempts === 5) {
                     startLockout();
+                } else if (localAttempts >= 10) {
+                    await fetch(API_HIT);
+                    location.reload();
                 } else {
-                    document.getElementById("attempt-warning").innerText = `ACCESS DENIED: ${10-attempts} ATTEMPTS LEFT`;
+                    document.getElementById("attempt-warning").innerText = `SECURITY WARNING: ${10-localAttempts} ATTEMPTS LEFT`;
                 }
             }
         }
@@ -191,13 +187,11 @@
             }, 1000);
         }
 
-        async function triggerGlobalLock() { await fetch(API_HIT); location.reload(); }
-        async function manualKill() { if(confirm("LOCK SYSTEM GLOBALLY?")) triggerGlobalLock(); }
-
+        async function manualKill() { if(confirm("TRIGGER GLOBAL LOCKDOWN?")) { await fetch(API_HIT); location.reload(); } }
         async function globalRestore() {
             if (document.getElementById("override-pass").value.trim().toLowerCase() === "18gb") {
                 await fetch(API_HIT); location.reload();
-            } else { alert("INVALID KEY."); }
+            } else { alert("ACCESS DENIED."); }
         }
 
         function showScreen(id) {
@@ -231,7 +225,7 @@
                 document.getElementById(`bar-earned-${m}`).style.height = e + '%';
             });
             const net = totalE - totalS;
-            document.getElementById("net-profit").innerText = "$" + net;
+            document.getElementById("net-profit").innerText = (net < 0 ? "-" : "") + "$" + Math.abs(net);
             const progress = Math.min(100, (net / 120) * 100);
             document.getElementById("goal-bar").style.width = progress + "%";
             document.getElementById("goal-text").innerText = Math.floor(progress) + "%";
