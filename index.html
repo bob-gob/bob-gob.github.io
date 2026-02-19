@@ -3,320 +3,211 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite 4 | Command Center</title>
+    <title>Elite 4 | Owner Portal</title>
     <style>
-        :root { --neon-blue: #00d4ff; --neon-green: #39FF14; --neon-red: #ff4d4d; --grid-color: rgba(0, 212, 255, 0.1); }
+        :root { --neon-blue: #00d4ff; --neon-green: #39FF14; --neon-red: #ff4d4d; --grid: rgba(0, 212, 255, 0.05); }
         body { background: #0b101b; color: white; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; user-select: none; }
         
-        /* Security Elements */
-        .box { border: 2px solid var(--neon-blue); padding: 30px; border-radius: 15px; background: rgba(0,0,0,0.95); text-align: center; width: 90%; max-width: 500px; position: relative; }
-        .input-container { position: relative; width: 85%; margin: 15px auto; }
-        input { background: #000; border: 1px solid var(--neon-blue); color: var(--neon-green); padding: 12px; width: 100%; text-align: center; outline: none; font-size: 1.2em; box-sizing: border-box; border-radius: 5px; }
-        .eye-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--neon-blue); font-size: 1.2em; }
+        /* Screens */
+        .screen { display: none; width: 100%; height: 100vh; justify-content: center; align-items: center; flex-direction: column; position: absolute; }
+        .box { border: 2px solid var(--neon-blue); padding: 30px; border-radius: 15px; background: rgba(0,0,0,0.95); text-align: center; width: 90%; max-width: 500px; }
         
-        button { cursor: pointer; font-weight: bold; transition: 0.3s; border: none; padding: 10px 20px; border-radius: 4px; }
-        button:disabled { background: #444 !important; color: #888 !important; cursor: not-allowed; }
+        /* Login UI */
+        input { background: #000; border: 1px solid var(--neon-blue); color: var(--neon-green); padding: 12px; width: 80%; text-align: center; outline: none; font-size: 1.2em; border-radius: 5px; margin-bottom: 10px; }
+        button { cursor: pointer; font-weight: bold; padding: 10px 20px; border-radius: 4px; border: none; transition: 0.3s; }
         .btn-blue { background: var(--neon-blue); color: black; }
         .btn-red { background: var(--neon-red); color: white; }
-        .btn-light-blue { background: #add8e6; color: black; }
-        
-        .screen { display: none; width: 100%; height: 100vh; justify-content: center; align-items: center; flex-direction: column; position: absolute; }
-        
-        /* Loading & Transitions */
-        .spinner { border: 5px solid rgba(0,212,255,0.1); border-left-color: var(--neon-green); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        .fade-text { color: var(--neon-green); font-size: 1.8em; animation: pulse 2.5s infinite; text-shadow: 0 0 10px var(--neon-green); }
-        @keyframes pulse { 0%, 100% { opacity: 0.1; } 50% { opacity: 1; } }
+        .btn-light-blue { background: #add8e6; color: black; padding: 25px; font-size: 1.2em; }
 
-        /* Dashboard Core */
-        .dashboard-container { width: 98%; max-width: 1400px; height: 95vh; overflow-y: auto; background: rgba(0,0,0,0.9); border: 1px solid var(--neon-blue); padding: 25px; display: flex; flex-direction: column; align-items: center; border-radius: 15px; box-sizing: border-box; }
-        .project-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-top: 20px; }
-        .project-box { border: 1px solid var(--neon-blue); padding: 25px; background: rgba(255,255,255,0.05); text-align: left; border-radius: 10px; }
+        /* Dashboard */
+        .dashboard-container { width: 98%; max-width: 1400px; height: 95vh; background: rgba(0,0,0,0.9); border: 1px solid var(--neon-blue); padding: 20px; display: flex; flex-direction: column; border-radius: 15px; box-sizing: border-box; }
+        .project-box { border: 1px solid var(--neon-blue); padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; flex: 1; }
 
-        /* BIG GRAPHS */
-        .graph-area { display: flex; gap: 30px; width: 100%; justify-content: center; margin-top: 20px; flex-wrap: nowrap; }
-        .graph-container { 
-            background: #000; 
-            border: 1px solid #333; 
-            padding: 30px 20px 40px 20px; 
-            width: 48%; 
-            border-radius: 12px; 
-            position: relative;
-            background-image: linear-gradient(var(--grid-color) 1px, transparent 1px), linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
-            background-size: 100% 30px;
-        }
-        .bars { display: flex; align-items: flex-end; justify-content: space-around; height: 300px; border-bottom: 2px solid white; position: relative; touch-action: none; }
+        /* MASSIVE GRAPHS */
+        .graph-area { display: flex; gap: 20px; width: 100%; height: 400px; margin-top: 20px; }
+        .graph-container { flex: 1; background: #000; border: 1px solid #333; border-radius: 12px; position: relative; padding: 20px; display: flex; flex-direction: column; }
+        .bars-frame { flex: 1; display: flex; align-items: flex-end; justify-content: space-around; border-bottom: 2px solid white; position: relative; background-image: linear-gradient(var(--grid) 1px, transparent 1px); background-size: 100% 30px; }
         
-        .bar-col { width: 35px; background: var(--neon-green); position: relative; cursor: ns-resize; border-radius: 4px 4px 0 0; box-shadow: 0 0 15px rgba(57, 255, 20, 0.2); }
-        .bar-col.spent { background: var(--neon-red); box-shadow: 0 0 15px rgba(255, 77, 77, 0.2); }
+        /* The Interactive Column */
+        .bar-wrapper { width: 8%; height: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative; cursor: pointer; z-index: 5; }
+        .bar-wrapper:hover { background: rgba(255,255,255,0.05); }
         
-        .bar-label { position: absolute; top: -30px; left: 50%; transform: translateX(-50%); font-size: 12px; font-weight: bold; color: white; background: #000; padding: 4px 8px; border-radius: 4px; display: none; border: 1px solid var(--neon-blue); z-index: 10; }
-        .bar-col:hover .bar-label, .bar-col.active .bar-label { display: block; }
-        .month-label { font-size: 11px; position: absolute; bottom: -30px; left: 50%; transform: translateX(-50%); color: #aaa; pointer-events: none; font-weight: bold; }
+        .bar-col { width: 80%; background: var(--neon-green); border-radius: 4px 4px 0 0; position: relative; pointer-events: none; transition: height 0.1s ease; }
+        .bar-col.spent { background: var(--neon-red); }
         
-        /* Stats & Calculator Layout */
-        .bottom-grid { display: grid; grid-template-columns: 350px 1fr; gap: 25px; width: 100%; margin-top: 30px; }
-        .calc-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 10px; background: #111; padding: 15px; border-radius: 10px; border: 1px solid #333; }
-        #calc-display { grid-column: span 4; background: #000; color: var(--neon-green); border: 1px solid var(--neon-blue); text-align: right; padding: 15px; font-size: 1.5em; min-height: 35px; border-radius: 5px; margin-bottom: 10px; }
-        .calc-btn { background: #333; color: white; padding: 18px; font-size: 1.2em; border-radius: 5px; cursor: pointer; transition: 0.2s; }
-        .calc-btn:hover { background: var(--neon-blue); color: black; }
+        .bar-label { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 12px; color: white; font-weight: bold; background: black; border: 1px solid var(--neon-blue); padding: 2px 5px; border-radius: 3px; }
+        .month-text { position: absolute; bottom: -25px; font-size: 10px; color: #888; font-weight: bold; }
 
-        .goal-wrap { width: 100%; background: #222; height: 45px; margin: 25px 0; position: relative; border-radius: 8px; overflow: hidden; border: 1px solid #444; }
-        #goal-fill { height: 100%; background: linear-gradient(90deg, #1a5c11, var(--neon-green)); width: 0%; transition: 0.5s ease-out; }
+        /* Calculator & Progress */
+        .bottom-ui { display: grid; grid-template-columns: 350px 1fr; gap: 20px; margin-top: 30px; }
+        #calc-display { background: #000; color: var(--neon-green); border: 1px solid var(--neon-blue); text-align: right; padding: 15px; font-size: 1.5em; margin-bottom: 10px; border-radius: 5px; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+        .calc-btn { background: #333; color: white; padding: 15px; border-radius: 5px; cursor: pointer; }
+        .goal-bar { width: 100%; background: #222; height: 40px; border-radius: 8px; overflow: hidden; margin: 15px 0; border: 1px solid #444; }
+        #goal-fill { height: 100%; background: var(--neon-green); width: 0%; transition: 0.5s; }
     </style>
 </head>
 <body oncontextmenu="return false;">
 
     <div id="login-screen" class="screen" style="display: flex;">
         <div class="box">
-            <h1 style="letter-spacing: 3px; color: var(--neon-blue);">SYSTEM LOGIN</h1>
-            <div id="lockout-timer" style="color:var(--neon-red); font-weight:bold; display:none; margin-bottom:10px;">LOCKED: <span id="seconds">30</span>s</div>
-            <div class="input-container">
-                <input type="password" id="passInput" placeholder="ACCESS KEY">
-                <span class="eye-btn" onclick="togglePass()">👁️</span>
-            </div>
-            <button class="btn-blue" id="loginBtn" onclick="checkPass()">VALIDATE</button>
-            <p id="error-msg" style="color:var(--neon-red); font-size:0.8em; margin-top:10px;"></p>
+            <h1 style="color: var(--neon-blue);">SYSTEM ACCESS</h1>
+            <div id="lockout-timer" style="color:var(--neon-red); display:none;">LOCKED: <span id="seconds">30</span>s</div>
+            <input type="password" id="passInput" placeholder="PASSWORD">
+            <button class="btn-blue" onclick="checkPass()">ENTER</button>
+            <p id="error-msg" style="color:var(--neon-red); font-size:0.8em;"></p>
         </div>
     </div>
 
     <div id="system-lock" class="screen">
         <div class="box" style="border-color: var(--neon-red);">
-            <h1 style="color: var(--neon-red);">TERMINAL ENCRYPTED</h1>
-            <p>Multiple failed attempts. System Lockdown.</p>
-            <input type="text" id="restoreInput" placeholder="ENTER RESTORE CODE">
-            <button class="btn-red" onclick="restoreSystem()">RESTORE</button>
+            <h1 style="color: var(--neon-red);">TERMINAL LOCKED</h1>
+            <input type="text" id="restoreInput" placeholder="ENTER 18GB">
+            <button class="btn-red" onclick="restoreSystem()">RECOVER</button>
         </div>
     </div>
 
     <div id="loading-screen" class="screen">
-        <div class="spinner"></div>
-        <h1 id="pct">0%</h1>
-        <p>REBUILDING DATABASE ARCHIVE...</p>
-    </div>
-
-    <div id="continue-screen" class="screen" onclick="showAccessGranted()" style="cursor:pointer">
-        <h2 class="fade-text">RECOVERY COMPLETE</h2>
-        <p style="color: var(--neon-green);">CLICK TO INITIALIZE DASHBOARD</p>
-    </div>
-
-    <div id="granted-screen" class="screen">
-        <h1 style="color:var(--neon-green); letter-spacing: 12px; text-shadow: 0 0 20px var(--neon-green);">ACCESS GRANTED</h1>
+        <h1 id="pct" style="font-size: 3em; color: var(--neon-green);">0%</h1>
+        <p>DECRYPTING ASSETS...</p>
     </div>
 
     <div id="dashboard-1" class="screen">
         <div class="dashboard-container">
-            <div style="width:100%; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #333; padding-bottom: 15px;">
-                <h2 style="color:var(--neon-blue); margin:0;">ACTIVE OPERATIONS</h2>
-                <button class="btn-red" onclick="location.reload()">TERMINATE SESSION</button>
+            <h2>SYSTEM OVERVIEW</h2>
+            <div style="display:flex; gap:20px;">
+                <div class="project-box"><h3>ASTRONAUT</h3><p>Complete by Monday</p></div>
+                <div class="project-box"><h3>ORGANIC</h3><p>Black Dragon / Red Octopus</p></div>
             </div>
-            <div class="project-grid">
-                <div class="project-box">
-                    <h3 style="color:var(--neon-green)">PROJECT: ASTRONAUT</h3>
-                    <p>Status: Pending Finalization</p>
-                    <p>Deadline: Monday completion</p>
-                </div>
-                <div class="project-box">
-                    <h3 style="color:var(--neon-blue)">PROJECT: ORGANIC FORMS</h3>
-                    <p>Current Task: Black Dragon and Red Octopus</p>
-                    <p>Status: In-Progress</p>
-                </div>
-            </div>
-            <button class="btn-light-blue" style="margin-top:auto; padding: 30px; width: 100%; font-size:1.5em;" onclick="showDashboard2()">OPEN FINANCIAL ANALYTICS</button>
+            <button class="btn-light-blue" style="margin-top:20px;" onclick="showDashboard2()">OPEN FINANCIALS</button>
         </div>
     </div>
 
     <div id="dashboard-2" class="screen">
         <div class="dashboard-container">
-            <div style="width:100%; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #333; padding-bottom: 10px;">
-                <h2 id="yearTitle" style="margin:0;">2026 REVENUE TERMINAL</h2>
-                <button class="btn-red" onclick="location.reload()">LOG OUT</button>
-            </div>
-            
+            <h2 id="yearTitle">2026 REVENUE</h2>
             <div class="graph-area">
                 <div class="graph-container">
-                    <h4 style="color:var(--neon-green); margin-top:0;">YEARLY EARNINGS ($)</h4>
-                    <div id="earnedBars" class="bars"></div>
+                    <h4 style="color:var(--neon-green)">EARNED ($)</h4>
+                    <div id="earnedBars" class="bars-frame"></div>
                 </div>
                 <div class="graph-container">
-                    <h4 style="color:var(--neon-red); margin-top:0;">YEARLY EXPENDITURE ($)</h4>
-                    <div id="spentBars" class="bars"></div>
+                    <h4 style="color:var(--neon-red)">SPENT ($)</h4>
+                    <div id="spentBars" class="bars-frame"></div>
                 </div>
             </div>
 
-            <div class="bottom-grid">
-                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid #333;">
+            <div class="bottom-ui">
+                <div class="box" style="width:100%; padding:15px; box-sizing:border-box;">
                     <div id="calc-display">0</div>
-                    <div class="calc-box">
-                        <button class="calc-btn" onclick="calcAppend('7')">7</button><button class="calc-btn" onclick="calcAppend('8')">8</button><button class="calc-btn" onclick="calcAppend('9')">9</button><button class="calc-btn" onclick="calcAppend('/')">/</button>
-                        <button class="calc-btn" onclick="calcAppend('4')">4</button><button class="calc-btn" onclick="calcAppend('5')">5</button><button class="calc-btn" onclick="calcAppend('6')">6</button><button class="calc-btn" onclick="calcAppend('*')">*</button>
-                        <button class="calc-btn" onclick="calcAppend('1')">1</button><button class="calc-btn" onclick="calcAppend('2')">2</button><button class="calc-btn" onclick="calcAppend('3')">3</button><button class="calc-btn" onclick="calcAppend('-')">-</button>
-                        <button class="calc-btn" onclick="calcClear()">C</button><button class="calc-btn" onclick="calcAppend('0')">0</button><button class="calc-btn" onclick="calcResult()">=</button><button class="calc-btn" onclick="calcAppend('+')">+</button>
-                    </div>
+                    <div class="calc-grid" id="calcBtns"></div>
                 </div>
-
-                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; border: 1px solid var(--neon-green); text-align: center;">
-                    <h3 style="margin:0;">ANNUAL TARGET PROGRESS</h3>
-                    <div style="display:flex; justify-content: space-around; margin: 20px 0;">
-                        <div><small>TOTAL EARNED</small><h2 id="calcEarned" style="color:var(--neon-green); margin:5px 0;">$0</h2></div>
-                        <div><small>TOTAL SPENT</small><h2 id="calcSpent" style="color:var(--neon-red); margin:5px 0;">$0</h2></div>
-                    </div>
-                    <div class="goal-wrap"><div id="goal-fill"></div></div>
-                    <p id="goalText" style="font-weight:bold; font-size: 1.2em;">$0 / $120</p>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn-blue" style="flex:1" onclick="advanceYear()">ADVANCE FISCAL YEAR</button>
-                        <button class="btn-light-blue" style="flex:1" onclick="showDashboard1()">RETURN TO PROJECTS</button>
-                    </div>
+                <div class="box" style="width:100%; border-color: var(--neon-green);">
+                    <h3>PROGRESS TO $120</h3>
+                    <div class="goal-bar"><div id="goal-fill"></div></div>
+                    <p id="goalText">$0 / $120</p>
+                    <button class="btn-blue" onclick="advanceYear()">ADVANCE YEAR</button>
+                    <button class="btn-red" onclick="location.reload()">LOGOUT</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let attempts = 0, timerUsed = false, isDragging = false;
-        let currentYear = parseInt(localStorage.getItem('eliteYear')) || 2026;
-        let earnedData = JSON.parse(localStorage.getItem('earnedData')) || Array(12).fill(0);
-        let spentData = JSON.parse(localStorage.getItem('spentData')) || Array(12).fill(0);
+        let attempts = 0, isDragging = false;
+        let currentYear = 2026;
+        let earnedData = Array(12).fill(0), spentData = Array(12).fill(0);
         const months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
 
-        function togglePass() {
-            const pin = document.getElementById('passInput');
-            pin.type = pin.type === "password" ? "text" : "password";
-        }
-
         function checkPass() {
-            const input = document.getElementById('passInput');
-            if(input.value === "printing4") { runLoading(); }
-            else {
+            if(document.getElementById('passInput').value === "printing4") {
+                showScreen('loading-screen');
+                let p = 0;
+                let iv = setInterval(() => {
+                    p += (p < 50 ? 2 : 1);
+                    document.getElementById('pct').innerText = p + "%";
+                    if(p >= 100) { clearInterval(iv); showDashboard1(); }
+                }, 50);
+            } else {
                 attempts++;
                 if(attempts >= 10) showScreen('system-lock');
-                else if (attempts >= 5 && !timerUsed) startLockout();
-                else document.getElementById('error-msg').innerText = `ACCESS DENIED: ${attempts}/10`;
+                else document.getElementById('error-msg').innerText = "DENIED: " + attempts + "/10";
             }
-        }
-
-        function startLockout() {
-            timerUsed = true;
-            const btn = document.getElementById('loginBtn'), input = document.getElementById('passInput');
-            const timerBox = document.getElementById('lockout-timer'), secDisplay = document.getElementById('seconds');
-            let timeLeft = 30;
-            btn.disabled = true; input.disabled = true; timerBox.style.display = 'block';
-            const countdown = setInterval(() => {
-                timeLeft--; secDisplay.innerText = timeLeft;
-                if(timeLeft <= 0) { clearInterval(countdown); btn.disabled = false; input.disabled = false; timerBox.style.display = 'none'; }
-            }, 1000);
         }
 
         function restoreSystem() {
             if(document.getElementById('restoreInput').value.toLowerCase() === "18gb") {
-                attempts = 0; timerUsed = false; showScreen('login-screen');
+                attempts = 0; showScreen('login-screen');
             }
-        }
-
-        function runLoading() {
-            showScreen('loading-screen');
-            const pct = document.getElementById('pct');
-            setTimeout(() => { pct.innerText = "48%"; 
-                setTimeout(() => { pct.innerText = "99%"; 
-                    setTimeout(() => { pct.innerText = "100%"; 
-                        setTimeout(() => showScreen('continue-screen'), 3000);
-                    }, 3000);
-                }, 5000);
-            }, 3000);
-        }
-
-        function showAccessGranted() {
-            showScreen('granted-screen');
-            setTimeout(() => showDashboard1(), 2000);
         }
 
         function renderGraphs() {
-            const eContainer = document.getElementById('earnedBars'), sContainer = document.getElementById('spentBars');
-            eContainer.innerHTML = ''; sContainer.innerHTML = '';
-            document.getElementById('yearTitle').innerText = `${currentYear} REVENUE TERMINAL`;
-            for(let i=0; i<12; i++) {
-                eContainer.appendChild(createBar(i, earnedData[i], 'earned'));
-                sContainer.appendChild(createBar(i, spentData[i], 'spent'));
-            }
+            const eDiv = document.getElementById('earnedBars'), sDiv = document.getElementById('spentBars');
+            eDiv.innerHTML = ''; sDiv.innerHTML = '';
+            months.forEach((m, i) => {
+                eDiv.appendChild(createBar(i, earnedData[i], 'earned'));
+                sDiv.appendChild(createBar(i, spentData[i], 'spent'));
+            });
             updateStats();
         }
 
-        function createBar(index, value, type) {
-            const col = document.createElement('div');
-            col.className = `bar-col ${type === 'spent' ? 'spent' : ''}`;
-            col.style.height = `${value}%`;
+        function createBar(i, val, type) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'bar-wrapper';
             
-            const label = document.createElement('span');
-            label.className = 'bar-label';
-            label.innerText = `$${value}`;
-            col.appendChild(label);
+            const bar = document.createElement('div');
+            bar.className = 'bar-col ' + (type === 'spent' ? 'spent' : '');
+            bar.style.height = val + '%';
+            
+            const label = document.createElement('div');
+            label.className = 'bar-label'; label.innerText = '$' + val;
+            
+            const mText = document.createElement('div');
+            mText.className = 'month-text'; mText.innerText = months[i];
 
-            const handleMove = (e) => {
-                if (!isDragging) return;
-                const rect = col.parentElement.getBoundingClientRect();
-                const clientY = e.clientY || (e.touches ? e.touches[0].clientY : 0);
-                const y = Math.max(0, Math.min(300, rect.bottom - clientY));
-                const val = Math.round((y / 300) * 100);
-                
-                col.style.height = `${val}%`;
-                label.innerText = `$${val}`;
-                if(type === 'earned') earnedData[index] = val; else spentData[index] = val;
+            // CLICK & DRAG LOGIC
+            const update = (e) => {
+                const rect = wrapper.getBoundingClientRect();
+                const y = Math.max(0, Math.min(rect.height, rect.bottom - e.clientY));
+                const pct = Math.round((y / rect.height) * 100);
+                bar.style.height = pct + '%';
+                label.innerText = '$' + pct;
+                if(type === 'earned') earnedData[i] = pct; else spentData[i] = pct;
                 updateStats();
+                document.getElementById('calc-display').innerText = pct;
             };
 
-            col.onmousedown = (e) => { 
-                isDragging = true; 
-                col.classList.add('active');
-                handleMove(e);
-                window.onmousemove = handleMove;
-                window.onmouseup = () => { 
-                    isDragging = false; 
-                    col.classList.remove('active');
-                    window.onmousemove = null; 
-                    saveData();
-                    calcExpr = (type === 'earned' ? earnedData[index] : spentData[index]).toString();
-                    document.getElementById('calc-display').innerText = calcExpr;
-                };
-            };
+            wrapper.onmousedown = (e) => { isDragging = true; update(e); };
+            window.addEventListener('mousemove', (e) => { if(isDragging) update(e); });
+            window.addEventListener('mouseup', () => { isDragging = false; });
 
-            const mLabel = document.createElement('span');
-            mLabel.className = 'month-label'; mLabel.innerText = months[index];
-            col.appendChild(mLabel);
-            return col;
+            bar.appendChild(label);
+            wrapper.appendChild(bar);
+            wrapper.appendChild(mText);
+            return wrapper;
         }
 
         function updateStats() {
-            const tEarned = earnedData.reduce((a, b) => a + b, 0), tSpent = spentData.reduce((a, b) => a + b, 0);
-            document.getElementById('calcEarned').innerText = `$${tEarned}`;
-            document.getElementById('calcSpent').innerText = `$${tSpent}`;
-            document.getElementById('goal-fill').style.width = `${Math.min(100, (tEarned / 120) * 100)}%`;
-            document.getElementById('goalText').innerText = `$${tEarned} / $120`;
+            let total = earnedData.reduce((a,b) => a+b, 0);
+            document.getElementById('goal-fill').style.width = Math.min(100, (total/120)*100) + '%';
+            document.getElementById('goalText').innerText = '$' + total + ' / $120';
         }
 
-        function advanceYear() {
-            if(confirm("Confirm Year Reset? All graph data will be cleared.")) {
-                currentYear++; earnedData = Array(12).fill(0); spentData = Array(12).fill(0);
-                calcClear(); saveData(); renderGraphs();
-            }
-        }
+        function advanceYear() { currentYear++; earnedData.fill(0); spentData.fill(0); renderGraphs(); }
 
-        function saveData() {
-            localStorage.setItem('eliteYear', currentYear);
-            localStorage.setItem('earnedData', JSON.stringify(earnedData));
-            localStorage.setItem('spentData', JSON.stringify(spentData));
-        }
-
-        let calcExpr = "";
-        function calcAppend(val) { calcExpr += val; document.getElementById('calc-display').innerText = calcExpr; }
-        function calcClear() { calcExpr = ""; document.getElementById('calc-display').innerText = "0"; }
-        function calcResult() {
-            try { 
-                let res = eval(calcExpr);
-                calcExpr = (res === undefined) ? "0" : res.toString();
-                document.getElementById('calc-display').innerText = calcExpr; 
-            }
-            catch { calcExpr = ""; document.getElementById('calc-display').innerText = "ERR"; }
-        }
+        // Calculator
+        const keys = ['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+'];
+        keys.forEach(k => {
+            const b = document.createElement('button');
+            b.className = 'calc-btn'; b.innerText = k;
+            b.onclick = () => {
+                let d = document.getElementById('calc-display');
+                if(k === 'C') d.innerText = '0';
+                else if(k === '=') { try{ d.innerText = eval(d.innerText); } catch{ d.innerText='ERR'; } }
+                else { d.innerText = (d.innerText === '0' ? k : d.innerText + k); }
+            };
+            document.getElementById('calcBtns').appendChild(b);
+        });
 
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
