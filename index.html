@@ -6,12 +6,16 @@
     <title>Elite 4 | Owner Portal</title>
     <style>
         :root { --neon-blue: #00d4ff; --neon-green: #39FF14; --neon-red: #ff4d4d; }
-        body { background: #0b101b; color: white; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        body { background: #0b101b; color: white; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; user-select: none; }
         
-        .box { border: 2px solid var(--neon-blue); padding: 30px; border-radius: 15px; background: rgba(0,0,0,0.95); text-align: center; width: 90%; max-width: 500px; }
-        input { background: #000; border: 1px solid var(--neon-blue); color: var(--neon-green); padding: 12px; width: 80%; text-align: center; outline: none; margin: 15px 0; font-size: 1.2em; }
+        .box { border: 2px solid var(--neon-blue); padding: 30px; border-radius: 15px; background: rgba(0,0,0,0.95); text-align: center; width: 90%; max-width: 500px; position: relative; }
         
-        button { cursor: pointer; font-weight: bold; transition: 0.3s; border: none; padding: 10px 20px; }
+        /* Input & Password Eye */
+        .input-container { position: relative; width: 85%; margin: 15px auto; }
+        input { background: #000; border: 1px solid var(--neon-blue); color: var(--neon-green); padding: 12px; width: 100%; text-align: center; outline: none; font-size: 1.2em; box-sizing: border-box; border-radius: 5px; }
+        .eye-btn { position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--neon-blue); font-size: 1.2em; }
+        
+        button { cursor: pointer; font-weight: bold; transition: 0.3s; border: none; padding: 10px 20px; border-radius: 4px; }
         button:disabled { background: #444 !important; color: #888 !important; cursor: not-allowed; }
         .btn-blue { background: var(--neon-blue); color: black; }
         .btn-red { background: var(--neon-red); color: white; }
@@ -19,35 +23,51 @@
         
         .screen { display: none; width: 100%; height: 100vh; justify-content: center; align-items: center; flex-direction: column; position: absolute; }
         
+        /* Loading Spinner */
         .spinner { border: 5px solid rgba(0,212,255,0.1); border-left-color: var(--neon-green); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin-bottom: 20px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
+        /* Neon Fading Text */
         .fade-text { color: var(--neon-green); font-size: 1.8em; animation: pulse 2.5s infinite; text-shadow: 0 0 10px var(--neon-green); }
         @keyframes pulse { 0%, 100% { opacity: 0.1; } 50% { opacity: 1; } }
 
-        .dashboard-container { width: 95%; max-width: 1100px; height: 90vh; overflow-y: auto; background: rgba(0,0,0,0.8); border: 1px solid var(--neon-blue); padding: 20px; display: flex; flex-direction: column; align-items: center; }
-        .nav-header { width: 100%; display: flex; justify-content: flex-end; margin-bottom: 20px; }
+        /* Dashboard */
+        .dashboard-container { width: 95%; max-width: 1100px; height: 90vh; overflow-y: auto; background: rgba(0,0,0,0.8); border: 1px solid var(--neon-blue); padding: 20px; display: flex; flex-direction: column; align-items: center; border-radius: 10px; }
+        .nav-header { width: 100%; display: flex; justify-content: flex-end; margin-bottom: 10px; }
         .project-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; }
-        .project-box { border: 1px solid var(--neon-blue); padding: 20px; background: rgba(255,255,255,0.05); text-align: left; }
+        .project-box { border: 1px solid var(--neon-blue); padding: 20px; background: rgba(255,255,255,0.05); text-align: left; border-radius: 8px; }
 
+        /* Graphs */
         .graph-area { display: flex; gap: 20px; width: 100%; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
-        .graph-container { background: #000; border: 1px solid #333; padding: 10px; width: 45%; min-width: 400px; }
+        .graph-container { background: #000; border: 1px solid #333; padding: 15px; width: 45%; min-width: 400px; border-radius: 8px; }
         .bars { display: flex; align-items: flex-end; justify-content: space-between; height: 150px; border-bottom: 1px solid white; padding: 0 5px 5px 5px; }
-        .bar-col { width: 18px; background: var(--neon-green); position: relative; cursor: pointer; transition: 0.3s; }
+        .bar-col { width: 20px; background: var(--neon-green); position: relative; cursor: pointer; transition: 0.3s; border-radius: 2px 2px 0 0; }
         .bar-col.spent { background: var(--neon-red); }
+        .bar-col:hover { filter: brightness(1.3); }
         .month-label { font-size: 9px; position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); color: #888; }
         
+        /* Calculator */
+        .calc-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 10px; background: #222; padding: 10px; border-radius: 5px; }
+        #calc-display { grid-column: span 4; background: #000; color: var(--neon-green); border: 1px solid var(--neon-blue); text-align: right; padding: 10px; font-size: 1.2em; margin-bottom: 5px; min-height: 25px; }
+        .calc-btn { background: #444; color: white; padding: 15px; font-size: 1.1em; border-radius: 3px; cursor: pointer; }
+        .calc-btn:hover { background: var(--neon-blue); color: black; }
+
+        /* Goal Bar */
         .goal-wrap { width: 100%; background: #222; height: 35px; margin: 20px 0; position: relative; border-radius: 5px; overflow: hidden; border: 1px solid #444; }
         #goal-fill { height: 100%; background: var(--neon-green); width: 0%; transition: 0.8s ease-out; }
     </style>
 </head>
-<body>
+<body oncontextmenu="return false;">
 
     <div id="login-screen" class="screen" style="display: flex;">
         <div class="box">
             <h2>SYSTEM ACCESS</h2>
-            <div id="lockout-timer" style="color:var(--neon-red); font-weight:bold; display:none; margin-bottom:10px;">LOCKED: <span id="seconds">30</span>s</div>
-            <input type="password" id="passInput" placeholder="ENTER KEY">
+            <p style="font-size: 0.8em; color: var(--neon-blue);">Project 1: Astronaut: Monday Completion</p>
+            <div id="lockout-timer" style="color:var(--neon-red); font-weight:bold; display:none; margin-bottom:10px;">SYSTEM COOLDOWN: <span id="seconds">30</span>s</div>
+            <div class="input-container">
+                <input type="password" id="passInput" placeholder="ENTER KEY">
+                <span class="eye-btn" onclick="togglePass()">👁️</span>
+            </div>
             <button class="btn-blue" id="loginBtn" onclick="checkPass()">VALIDATE</button>
             <p id="error-msg" style="color:var(--neon-red); font-size:0.8em; margin-top:10px;"></p>
         </div>
@@ -55,8 +75,8 @@
 
     <div id="system-lock" class="screen">
         <div class="box" style="border-color: var(--neon-red);">
-            <h1 style="color: var(--neon-red);">CRITICAL LOCKOUT</h1>
-            <p>10 Failed attempts. Access Revoked.</p>
+            <h1 style="color: var(--neon-red);">TERMINAL LOCKED</h1>
+            <p>10 Failed attempts. Manual override required.</p>
             <input type="text" id="restoreInput" placeholder="ENTER 18GB">
             <button class="btn-red" onclick="restoreSystem()">RESTORE SYSTEM</button>
         </div>
@@ -65,7 +85,7 @@
     <div id="loading-screen" class="screen">
         <div class="spinner"></div>
         <h1 id="pct">0%</h1>
-        <p>DECRYPTING MODULES...</p>
+        <p>DECRYPTING SYSTEM FILES...</p>
     </div>
 
     <div id="continue-screen" class="screen" onclick="showAccessGranted()" style="cursor:pointer">
@@ -74,17 +94,23 @@
     </div>
 
     <div id="granted-screen" class="screen">
-        <h1 style="color:var(--neon-green); letter-spacing: 5px;">ACCESS GRANTED</h1>
+        <h1 style="color:var(--neon-green); letter-spacing: 8px; text-shadow: 0 0 15px var(--neon-green);">ACCESS GRANTED</h1>
     </div>
 
     <div id="dashboard-1" class="screen">
         <div class="dashboard-container">
             <div class="nav-header"><button class="btn-red" onclick="location.reload()">LOG OUT</button></div>
             <div class="project-grid">
-                <div class="project-box"><h3>Project 1</h3><p>Astronaut project: Monday completion</p></div>
-                <div class="project-box"><h3>Project 2</h3><p>In progress: Create Black Dragon and Red Octopus</p></div>
+                <div class="project-box">
+                    <h3>Project 1</h3>
+                    <p>Astronaut project: Monday completion</p>
+                </div>
+                <div class="project-box">
+                    <h3>Project 2</h3>
+                    <p>In progress: Create Black Dragon and Red Octopus</p>
+                </div>
             </div>
-            <button class="btn-light-blue" style="margin-top:50px; padding: 20px;" onclick="showDashboard2()">NEXT PAGE: FINANCIAL TRACKING</button>
+            <button class="btn-light-blue" style="margin-top:50px; padding: 20px; width: 100%;" onclick="showDashboard2()">NEXT PAGE: FINANCIAL TRACKING</button>
         </div>
     </div>
 
@@ -98,15 +124,28 @@
                 <div class="graph-container"><h4>Money Spent ($)</h4><div id="spentBars" class="bars"></div></div>
             </div>
 
-            <div class="box" style="margin-top:20px; width:100%; max-width:700px; border-color: var(--neon-green);">
-                <h3>Yearly Calculator</h3>
-                <p>Earned: $<span id="calcEarned">0</span> | Spent: $<span id="calcSpent">0</span></p>
-                <div class="goal-wrap"><div id="goal-fill"></div></div>
-                <p id="goalText">$0 / $120</p>
-            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; margin-top: 10px;">
+                <div class="box" style="width: auto; max-width: none;">
+                    <h3>System Calculator</h3>
+                    <div id="calc-display">0</div>
+                    <div class="calc-box">
+                        <button class="calc-btn" onclick="calcAppend('7')">7</button><button class="calc-btn" onclick="calcAppend('8')">8</button><button class="calc-btn" onclick="calcAppend('9')">9</button><button class="calc-btn" onclick="calcAppend('/')">/</button>
+                        <button class="calc-btn" onclick="calcAppend('4')">4</button><button class="calc-btn" onclick="calcAppend('5')">5</button><button class="calc-btn" onclick="calcAppend('6')">6</button><button class="calc-btn" onclick="calcAppend('*')">*</button>
+                        <button class="calc-btn" onclick="calcAppend('1')">1</button><button class="calc-btn" onclick="calcAppend('2')">2</button><button class="calc-btn" onclick="calcAppend('3')">3</button><button class="calc-btn" onclick="calcAppend('-')">-</button>
+                        <button class="calc-btn" onclick="calcClear()">C</button><button class="calc-btn" onclick="calcAppend('0')">0</button><button class="calc-btn" onclick="calcResult()">=</button><button class="calc-btn" onclick="calcAppend('+')">+</button>
+                    </div>
+                </div>
 
-            <button class="btn-blue" style="margin-top:20px;" onclick="advanceYear()">RESET AND ADVANCE YEAR</button>
-            <button class="btn-light-blue" style="margin-top:10px;" onclick="showDashboard1()">BACK TO PROJECTS</button>
+                <div class="box" style="width: auto; max-width: none; border-color: var(--neon-green);">
+                    <h3>Yearly Progress</h3>
+                    <p>Total Earned: $<span id="calcEarned">0</span> | Spent: $<span id="calcSpent">0</span></p>
+                    <div class="goal-wrap"><div id="goal-fill"></div></div>
+                    <p id="goalText">$0 / $120</p>
+                    <button class="btn-blue" style="width: 100%;" onclick="advanceYear()">RESET & ADVANCE YEAR</button>
+                </div>
+            </div>
+            
+            <button class="btn-light-blue" style="margin-top:20px; width: 100%;" onclick="showDashboard1()">BACK TO PROJECTS</button>
         </div>
     </div>
 
@@ -118,21 +157,22 @@
         let spentData = JSON.parse(localStorage.getItem('spentData')) || Array(12).fill(0);
         const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
+        // PASS VISIBILITY
+        function togglePass() {
+            const pin = document.getElementById('passInput');
+            pin.type = pin.type === "password" ? "text" : "password";
+        }
+
+        // LOGIN LOGIC
         function checkPass() {
             const input = document.getElementById('passInput');
             const err = document.getElementById('error-msg');
-
-            if(input.value === "printing4") {
-                runLoading();
-            } else {
+            if(input.value === "printing4") { runLoading(); }
+            else {
                 attempts++;
-                if(attempts >= 10) {
-                    showScreen('system-lock');
-                } else if (attempts >= 5 && !timerUsed) {
-                    startLockout();
-                } else {
-                    err.innerText = `Invalid Key. Attempt ${attempts}/10`;
-                }
+                if(attempts >= 10) { showScreen('system-lock'); }
+                else if (attempts >= 5 && !timerUsed) { startLockout(); }
+                else { err.innerText = `Access Denied. Attempt ${attempts}/10`; }
             }
         }
 
@@ -143,33 +183,23 @@
             const timerBox = document.getElementById('lockout-timer');
             const secDisplay = document.getElementById('seconds');
             let timeLeft = 30;
-
-            btn.disabled = true;
-            input.disabled = true;
-            timerBox.style.display = 'block';
-
+            btn.disabled = true; input.disabled = true; timerBox.style.display = 'block';
             const countdown = setInterval(() => {
-                timeLeft--;
-                secDisplay.innerText = timeLeft;
+                timeLeft--; secDisplay.innerText = timeLeft;
                 if(timeLeft <= 0) {
-                    clearInterval(countdown);
-                    btn.disabled = false;
-                    input.disabled = false;
-                    timerBox.style.display = 'none';
-                    document.getElementById('error-msg').innerText = "Attempts resumed.";
+                    clearInterval(countdown); btn.disabled = false; input.disabled = false;
+                    timerBox.style.display = 'none'; document.getElementById('error-msg').innerText = "";
                 }
             }, 1000);
         }
 
         function restoreSystem() {
-            if(document.getElementById('restoreInput').value === "18gb") {
-                attempts = 0;
-                timerUsed = false; // Reset timer flag if restored
-                showScreen('login-screen');
-                document.getElementById('error-msg').innerText = "System Restored.";
+            if(document.getElementById('restoreInput').value.toLowerCase() === "18gb") {
+                attempts = 0; timerUsed = false; showScreen('login-screen');
             }
         }
 
+        // LOADING SEQUENCE (3s, 5s, 3s = 11s)
         function runLoading() {
             showScreen('loading-screen');
             const pct = document.getElementById('pct');
@@ -187,6 +217,7 @@
             setTimeout(() => { showDashboard1(); }, 2000);
         }
 
+        // GRAPHS & DATA
         function renderGraphs() {
             const eContainer = document.getElementById('earnedBars');
             const sContainer = document.getElementById('spentBars');
@@ -205,40 +236,38 @@
             col.className = `bar-col ${type === 'spent' ? 'spent' : ''}`;
             col.style.height = `${value}%`;
             col.onclick = () => {
-                let newVal = prompt(`Enter ${type} amount (0-100):`, value);
+                let newVal = prompt(`Set ${type} for ${months[index]} (0-100):`, value);
                 if(newVal !== null) {
                     newVal = Math.min(100, Math.max(0, parseInt(newVal) || 0));
-                    if(type === 'earned') earnedData[index] = newVal;
-                    else spentData[index] = newVal;
-                    saveData();
+                    if(type === 'earned') earnedData[index] = newVal; else spentData[index] = newVal;
+                    saveData(); 
                     renderGraphs();
+                    // AUTO-SEND TO CALCULATOR
+                    calcExpr = newVal.toString();
+                    document.getElementById('calc-display').innerText = calcExpr;
                 }
             };
             const label = document.createElement('span');
-            label.className = 'month-label';
-            label.innerText = months[index];
+            label.className = 'month-label'; label.innerText = months[index];
             col.appendChild(label);
             return col;
         }
 
         function updateStats() {
-            const totalEarned = earnedData.reduce((a, b) => a + b, 0);
-            const totalSpent = spentData.reduce((a, b) => a + b, 0);
-            document.getElementById('calcEarned').innerText = totalEarned;
-            document.getElementById('calcSpent').innerText = totalSpent;
-            
-            const goalPct = (totalEarned / 120) * 100;
-            document.getElementById('goal-fill').style.width = `${Math.min(100, goalPct)}%`;
-            document.getElementById('goalText').innerText = `$${totalEarned} / $120`;
+            const tEarned = earnedData.reduce((a, b) => a + b, 0);
+            const tSpent = spentData.reduce((a, b) => a + b, 0);
+            document.getElementById('calcEarned').innerText = tEarned;
+            document.getElementById('calcSpent').innerText = tSpent;
+            const gPct = (tEarned / 120) * 100;
+            document.getElementById('goal-fill').style.width = `${Math.min(100, gPct)}%`;
+            document.getElementById('goalText').innerText = `$${tEarned} / $120`;
         }
 
         function advanceYear() {
-            if(confirm("Reset data and advance to " + (currentYear + 1) + "?")) {
-                currentYear++;
-                earnedData = Array(12).fill(0);
-                spentData = Array(12).fill(0);
-                saveData();
-                renderGraphs();
+            if(confirm("Advance to " + (currentYear+1) + " and reset data?")) {
+                currentYear++; earnedData = Array(12).fill(0); spentData = Array(12).fill(0);
+                calcClear();
+                saveData(); renderGraphs();
             }
         }
 
@@ -248,11 +277,24 @@
             localStorage.setItem('spentData', JSON.stringify(spentData));
         }
 
+        // CALCULATOR LOGIC
+        let calcExpr = "";
+        function calcAppend(val) { calcExpr += val; document.getElementById('calc-display').innerText = calcExpr; }
+        function calcClear() { calcExpr = ""; document.getElementById('calc-display').innerText = "0"; }
+        function calcResult() {
+            try { 
+                let res = eval(calcExpr);
+                calcExpr = res.toString(); 
+                document.getElementById('calc-display').innerText = calcExpr; 
+            }
+            catch { calcExpr = ""; document.getElementById('calc-display').innerText = "ERR"; }
+        }
+
+        // NAVIGATION
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
             document.getElementById(id).style.display = 'flex';
         }
-
         function showDashboard1() { showScreen('dashboard-1'); }
         function showDashboard2() { showScreen('dashboard-2'); renderGraphs(); }
     </script>
