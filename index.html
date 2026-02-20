@@ -3,32 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elite 4 | Owner Portal</title>
+    <title>Elite 4 | Command Center</title>
     <style>
         :root { --neon-blue: #00d4ff; --neon-green: #39FF14; --neon-red: #ff4d4d; --grid: rgba(0, 212, 255, 0.05); }
         body { background: #0b101b; color: white; font-family: 'Courier New', monospace; margin: 0; overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; user-select: none; }
         
-        /* Screens */
         .screen { display: none; width: 100%; height: 100vh; justify-content: center; align-items: center; flex-direction: column; position: absolute; }
         .box { border: 2px solid var(--neon-blue); padding: 30px; border-radius: 15px; background: rgba(0,0,0,0.95); text-align: center; width: 90%; max-width: 500px; }
         
-        /* Login UI */
         input { background: #000; border: 1px solid var(--neon-blue); color: var(--neon-green); padding: 12px; width: 80%; text-align: center; outline: none; font-size: 1.2em; border-radius: 5px; margin-bottom: 10px; }
         button { cursor: pointer; font-weight: bold; padding: 10px 20px; border-radius: 4px; border: none; transition: 0.3s; }
         .btn-blue { background: var(--neon-blue); color: black; }
         .btn-red { background: var(--neon-red); color: white; }
         .btn-light-blue { background: #add8e6; color: black; padding: 25px; font-size: 1.2em; }
 
-        /* Dashboard */
         .dashboard-container { width: 98%; max-width: 1400px; height: 95vh; background: rgba(0,0,0,0.9); border: 1px solid var(--neon-blue); padding: 20px; display: flex; flex-direction: column; border-radius: 15px; box-sizing: border-box; }
         .project-box { border: 1px solid var(--neon-blue); padding: 20px; background: rgba(255,255,255,0.05); border-radius: 10px; flex: 1; }
 
-        /* MASSIVE GRAPHS */
         .graph-area { display: flex; gap: 20px; width: 100%; height: 400px; margin-top: 20px; }
         .graph-container { flex: 1; background: #000; border: 1px solid #333; border-radius: 12px; position: relative; padding: 20px; display: flex; flex-direction: column; }
         .bars-frame { flex: 1; display: flex; align-items: flex-end; justify-content: space-around; border-bottom: 2px solid white; position: relative; background-image: linear-gradient(var(--grid) 1px, transparent 1px); background-size: 100% 30px; }
         
-        /* The Interactive Column */
         .bar-wrapper { width: 8%; height: 100%; display: flex; align-items: flex-end; justify-content: center; position: relative; cursor: pointer; z-index: 5; }
         .bar-wrapper:hover { background: rgba(255,255,255,0.05); }
         
@@ -38,7 +33,6 @@
         .bar-label { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 12px; color: white; font-weight: bold; background: black; border: 1px solid var(--neon-blue); padding: 2px 5px; border-radius: 3px; }
         .month-text { position: absolute; bottom: -25px; font-size: 10px; color: #888; font-weight: bold; }
 
-        /* Calculator & Progress */
         .bottom-ui { display: grid; grid-template-columns: 350px 1fr; gap: 20px; margin-top: 30px; }
         #calc-display { background: #000; color: var(--neon-green); border: 1px solid var(--neon-blue); text-align: right; padding: 15px; font-size: 1.5em; margin-bottom: 10px; border-radius: 5px; }
         .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
@@ -103,7 +97,7 @@
                     <div class="calc-grid" id="calcBtns"></div>
                 </div>
                 <div class="box" style="width:100%; border-color: var(--neon-green);">
-                    <h3>PROGRESS TO $120</h3>
+                    <h3>NET PROFIT TO $120 GOAL</h3>
                     <div class="goal-bar"><div id="goal-fill"></div></div>
                     <p id="goalText">$0 / $120</p>
                     <button class="btn-blue" onclick="advanceYear()">ADVANCE YEAR</button>
@@ -165,7 +159,6 @@
             const mText = document.createElement('div');
             mText.className = 'month-text'; mText.innerText = months[i];
 
-            // CLICK & DRAG LOGIC
             const update = (e) => {
                 const rect = wrapper.getBoundingClientRect();
                 const y = Math.max(0, Math.min(rect.height, rect.bottom - e.clientY));
@@ -188,14 +181,19 @@
         }
 
         function updateStats() {
-            let total = earnedData.reduce((a,b) => a+b, 0);
-            document.getElementById('goal-fill').style.width = Math.min(100, (total/120)*100) + '%';
-            document.getElementById('goalText').innerText = '$' + total + ' / $120';
+            let totalEarned = earnedData.reduce((a,b) => a+b, 0);
+            let totalSpent = spentData.reduce((a,b) => a+b, 0);
+            let netProfit = totalEarned - totalSpent;
+            
+            // Progress shouldn't go below 0%
+            let displayProfit = Math.max(0, netProfit);
+            
+            document.getElementById('goal-fill').style.width = Math.min(100, (displayProfit/120)*100) + '%';
+            document.getElementById('goalText').innerText = '$' + displayProfit + ' / $120';
         }
 
         function advanceYear() { currentYear++; earnedData.fill(0); spentData.fill(0); renderGraphs(); }
 
-        // Calculator
         const keys = ['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+'];
         keys.forEach(k => {
             const b = document.createElement('button');
